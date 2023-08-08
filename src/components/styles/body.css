@@ -1,0 +1,62 @@
+.body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Esto crea una cuadrícula con columnas de al menos 250px */
+  gap: 10px; /* Espacio entre las mesas */
+  margin: 50px;
+}
+
+.unidad {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin: 20px;
+  width: 250px;
+  height: 200px;
+}
+
+.table {
+  width: 150px;
+  height: 100px;
+  background-color: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  z-index: 1; /* Esto asegura que la mesa esté por encima de las sillas */
+}
+
+.chair {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-color: #aaa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+}
+
+.chair:nth-child(1), .chair:nth-child(2) {
+  top: 0px; /* Ajustar según la necesidad */
+}
+
+.chair:nth-child(1) {
+  left: 50px; /* Ajustado para que no se superponga */
+}
+
+.chair:nth-child(2) {
+  right: 50px; /* Ajustado para que no se superponga */
+}
+
+.chair:nth-child(3), .chair:nth-child(4) {
+  bottom: 0px; /* Ajustar según la necesidad */
+}
+
+.chair:nth-child(3) {
+  left: 50px;
+}
+
+.chair:nth-child(4) {
+  right: 50px;
+}
