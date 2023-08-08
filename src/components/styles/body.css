@@ -1,3 +1,6 @@
+.body-container{
+  padding-top: 100px;
+}
 .body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Esto crea una cuadrícula con columnas de al menos 250px */

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import "./styles/body.css";
 
-const Unit = () => {
+const Unit = ({tableNumber}) => {
   const [tableColor, setTableColor] = useState('#ddd');
   const [chairColors, setChairColors] = useState(['#aaa', '#aaa', '#aaa', '#aaa']);
 
@@ -14,10 +14,12 @@ const Unit = () => {
       const newColors = [...prevColors];
       switch (newColors[index]) {
         case '#aaa':
+          setTableColor('#00A884');
           newColors[index] = 'cyan'; // Celeste
           break;
         case 'cyan':
           newColors[index] = 'pink'; // Rosa
+          setTableColor('#00A884');
           break;
         case 'pink':
           newColors[index] = '#aaa'; // Gris
@@ -25,6 +27,9 @@ const Unit = () => {
         default:
           newColors[index] = '#aaa';
       }
+      if (newColors.every(color => color === '#aaa')) {
+        setTableColor('#ddd');
+    }
       return newColors;
     });
   };
@@ -46,7 +51,7 @@ const Unit = () => {
         style={{backgroundColor: tableColor}} 
         onClick={handleTableClick}
       >
-        mesa
+        {`Mesa ${tableNumber} `}
       </div>
     </div>
   );
