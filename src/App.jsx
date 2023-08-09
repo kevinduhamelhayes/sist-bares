@@ -4,10 +4,9 @@ import AddSpecialTable from "./components/AddSpecialTable"
 //import Contact from "./components/Contact"
 import Footer from "./components/Footer"
 import Navbar from "./components/Navbar"
-import { Route, Routes, Link } from "react-router-dom"
-
+import { Route, Routes } from "react-router-dom"
 import AddProducts from "./components/AddProducts"
-//import Hero from "./components/Hero"
+import { db } from "./components/firebaseConfig"
 
 function App() {
   const [darkMode, setDarkMode] = useState(false)
@@ -17,7 +16,7 @@ function App() {
       <Routes>
         <Route exact path="/" element={<Body />} />
         <Route exact path="/addspecialtable" element={<AddSpecialTable />} />
-        <Route exact path="/addproducts" element={<AddProducts />} />
+        <Route exact path="/addproducts" element={<AddProducts db={db} />} />
       </Routes>
 
       <Footer />
