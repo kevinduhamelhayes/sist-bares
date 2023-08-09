@@ -1,0 +1,51 @@
+/* styles/addproducts.css */
+
+.add-products-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--gray);
+}
+
+.add-products {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  background-color: var(--light-color);
+}
+
+.form-add-products {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.label-add-products, .numero-de-mesa {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+}
+
+.input-add-products {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.btn-add-to-table {
+  background-color: var(--primary-color);
+  font-weight: 600;
+  color: var(--light-color);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-add-to-table:hover {
+  background-color: var(--secondary-color);
+}

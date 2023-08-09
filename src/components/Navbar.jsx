@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import "./styles/navbar.css"
 import { MdDarkMode, MdOutlineDarkMode } from "react-icons/md"
 
@@ -10,9 +11,15 @@ const Navbar = ({ setDarkMode, darkMode }) => {
         </div>
         <div className="left">
           <ul className="ul-nav-right">
-            <li className="ul-nav-right-li">Crear Mesa Especial</li>
-            <li className="ul-nav-right-li">A/C Mesa</li>
-            <li className="ul-nav-right-li">Editar Mesa</li>
+            <li className="ul-nav-right-li">
+              <Link className="Link" to="AddSpecialTable">Crear Mesa Especial</Link>
+            </li>
+            <li className="ul-nav-right-li">
+              <Link className="Link" to="/">Home</Link>{" "}
+            </li>
+            <li className="ul-nav-right-li">
+              <Link className="Link" to="AddProducts">Add Products</Link>
+            </li>
             <li className="ul-nav-right-li">Mozos</li>
             <li className="ul-nav-right-li">A/C Caja</li>
             <li className="ul-nav-right-li">

@@ -35,6 +35,7 @@
 }
 
 .ul-nav-right-li{
+  
   cursor: pointer;
   font-size: 1.3rem;
   transition: all 0.3s ease;
@@ -75,7 +76,6 @@
   color: var(--dark-color);
   padding: 10px 20px;
   cursor: pointer;
-
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -86,4 +86,8 @@
 .ingresar:hover{
   box-shadow: 0 0 0.5rem var(--shadow-color);
   text-shadow: 0 0 0.5rem var(--shadow-color);
+}
+.Link{
+  text-decoration: none;
+  color: var(--dark-color);
 }

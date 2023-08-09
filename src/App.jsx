@@ -1,9 +1,12 @@
 import { useState } from "react"
 import Body from "./components/Body"
-import Cards from "./components/Cards"
+import AddSpecialTable from "./components/AddSpecialTable"
 //import Contact from "./components/Contact"
 import Footer from "./components/Footer"
 import Navbar from "./components/Navbar"
+import { Route, Routes, Link } from "react-router-dom"
+
+import AddProducts from "./components/AddProducts"
 //import Hero from "./components/Hero"
 
 function App() {
@@ -11,8 +14,12 @@ function App() {
   return (
     <div className={`App ${darkMode ? "dark-mode" : "light-mode"}`}>
       <Navbar setDarkMode={setDarkMode} darkMode={darkMode} />
-      <Body />
-      <Cards />
+      <Routes>
+        <Route exact path="/" element={<Body />} />
+        <Route exact path="/addspecialtable" element={<AddSpecialTable />} />
+        <Route exact path="/addproducts" element={<AddProducts />} />
+      </Routes>
+
       <Footer />
     </div>
   )
