@@ -1,60 +1,68 @@
-import { useState } from 'react';
-import "./styles/body.css";
+import { useState } from "react"
+import "./styles/body.css"
 
-const Unit = ({tableNumber}) => {
-  const [tableColor, setTableColor] = useState('#ddd');
-  const [chairColors, setChairColors] = useState(['#aaa', '#aaa', '#aaa', '#aaa']);
+const Unit = ({ tableNumber }) => {
+  const [tableColor, setTableColor] = useState("#ddd")
+  const [chairColors, setChairColors] = useState([
+    "#aaa",
+    "#aaa",
+    "#aaa",
+    "#aaa",
+  ])
 
   const handleTableClick = () => {
-    setTableColor(prevColor => prevColor === '#ddd' ? '#00A884' : '#ddd');
-  };
+    setTableColor((prevColor) => (prevColor === "#ddd" ? "#00A884" : "#ddd"))
+    if (tableColor === "#00A884") {
+      setChairColors(["#aaa", "#aaa", "#aaa", "#aaa"])
+    }
+  }
 
   const handleChairClick = (index) => {
-    setChairColors(prevColors => {
-      const newColors = [...prevColors];
+    setChairColors((prevColors) => {
+      const newColors = [...prevColors]
       switch (newColors[index]) {
-        case '#aaa':
-          setTableColor('#00A884');
-          newColors[index] = 'cyan'; // Celeste
-          break;
-        case 'cyan':
-          newColors[index] = 'pink'; // Rosa
-          setTableColor('#00A884');
-          break;
-        case 'pink':
-          newColors[index] = '#aaa'; // Gris
-          break;
+        case "#aaa":
+          setTableColor("#00A884")
+          newColors[index] = "cyan" // Celeste
+          break
+        case "cyan":
+          newColors[index] = "pink" // Rosa
+          setTableColor("#00A884")
+          break
+        case "pink":
+          newColors[index] = "#aaa" // Gris
+          break
         default:
-          newColors[index] = '#aaa';
+          newColors[index] = "#aaa"
       }
-      if (newColors.every(color => color === '#aaa')) {
-        setTableColor('#ddd');
-    }
-      return newColors;
-    });
-  };
+      if (newColors.every((color) => color === "#aaa")) {
+        setTableColor("#ddd")
+      }
+      return newColors
+    })
+  }
 
   return (
     <div className="unidad">
       {chairColors.map((color, index) => (
-        <div 
-          key={index} 
-          className="chair" 
-          style={{backgroundColor: color}} 
+        <div
+          key={index}
+          className="chair"
+          style={{ backgroundColor: color }}
           onClick={() => handleChairClick(index)}
         >
           silla
         </div>
       ))}
-      <div 
-        className="table" 
-        style={{backgroundColor: tableColor}} 
+      <div
+        className="table"
+        style={{ backgroundColor: tableColor }}
         onClick={handleTableClick}
       >
         {`Mesa ${tableNumber} `}
       </div>
     </div>
-  );
+  )
 }
 
-export default Unit;
+export default Unit
