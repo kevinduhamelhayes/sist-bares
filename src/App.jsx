@@ -6,7 +6,6 @@ import Footer from "./components/Footer"
 import Navbar from "./components/Navbar"
 import { Route, Routes } from "react-router-dom"
 import AddProducts from "./components/AddProducts"
-import { db } from "./components/firebaseConfig"
 
 function App() {
   const [darkMode, setDarkMode] = useState(false)
@@ -16,7 +15,7 @@ function App() {
       <Routes>
         <Route exact path="/" element={<Body />} />
         <Route exact path="/addspecialtable" element={<AddSpecialTable />} />
-        <Route exact path="/addproducts" element={<AddProducts db={db} />} />
+        <Route exact path="/addproducts" element={<AddProducts />} />
       </Routes>
 
       <Footer />
