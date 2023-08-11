@@ -10,37 +10,14 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore"
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app"
+import { db } from "/firebaseConfig"
 
-import { getFirestore } from "firebase/firestore"
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_APP_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_APP_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_APP_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_APP_FIREBASE_MEASUREMENT_ID,
-}
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig)
-
-const db = getFirestore(app)
-
-function Newtodos() {
+function NewMenuItems() {
   const [todos, setTodos] = useState([])
   const [input, setInput] = useState("")
 
   //create a function to add todos
-  const createTodo = async (e) => {
+  const createMenuItem = async (e) => {
     e.preventDefault(e)
     if (input === "") {
       alert("please enter a todo")
@@ -72,7 +49,7 @@ function Newtodos() {
     })
   }
   //create a function to delete todos
-  const deleteTodo = async (id) => {
+  const deleteMenuItem = async (id) => {
     await deleteDoc(doc(db, "todos", id))
   }
 
@@ -82,7 +59,7 @@ function Newtodos() {
         <h3 className="text-3xl font-bold text-center text-gray-800 p-2">
           Todo App
         </h3>
-        <form onSubmit={createTodo} className="flex justify-between ">
+        <form onSubmit={createMenuItem} className="flex justify-between ">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -99,7 +76,7 @@ function Newtodos() {
               key={index}
               todo={todo}
               toggleComplete={toggleComplete}
-              deleteTodo={deleteTodo}
+              deleteTodo={deleteMenuItem}
             />
           ))}
         </ul>

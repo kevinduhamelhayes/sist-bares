@@ -17,7 +17,6 @@ function App() {
         <Route exact path="/addspecialtable" element={<AddSpecialTable />} />
         <Route exact path="/addproducts" element={<AddProducts />} />
       </Routes>
-
       <Footer />
     </div>
   )
