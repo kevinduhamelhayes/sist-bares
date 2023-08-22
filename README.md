@@ -6,3 +6,4 @@ ademas si todas las sillas estan vacias la mesa debe cerrarse
 cada mesa debe estar numerada y llevar el recuento de los consumos de la misma 
 debe poder adicionarse a cada mesa mediante un modal
 y debe poder gestionar un apartado de menu que pueda actualizarse y editarse masivamente
+hola mundo  
