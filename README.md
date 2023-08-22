@@ -1,9 +1,1 @@
-este sistemita de bares deberia abrir una mesa al tocar una silla
-deberia poner color celeste a la silla en el primer click
-deberia poner color rosa a la silla en el segundo click
-y vaciar la silla en gris al tercer click
-ademas si todas las sillas estan vacias la mesa debe cerrarse
-cada mesa debe estar numerada y llevar el recuento de los consumos de la misma 
-debe poder adicionarse a cada mesa mediante un modal
-y debe poder gestionar un apartado de menu que pueda actualizarse y editarse masivamente
-hola mundo  
+En este sistema para bares, al hacer clic en una silla, se debería abrir una mesa automáticamente. Con el primer clic, la silla tomará un color celeste. Con el segundo, cambiará a rosa. Y al tercer clic, regresará a un tono gris, indicando que está vacía. Si todas las sillas de una mesa están en gris, la mesa debe cerrarse automáticamente. Cada mesa debe estar identificada con un número y llevar un registro de los consumos asociados a ella. Además, debería ser posible añadir items a cada mesa a través de un modal. También es esencial contar con una sección de menú que se pueda actualizar y editar de manera masiva. ¡Hola mundo!
