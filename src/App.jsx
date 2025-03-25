@@ -1,26 +1,63 @@
-import { useState } from "react"
-import Body from "./components/Body"
-import AddSpecialTable from "./components/AddSpecialTable"
-//import Contact from "./components/Contact"
-import Footer from "./components/Footer"
+import React from "react"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { createTheme, ThemeProvider } from "@mui/material/styles"
 import Navbar from "./components/Navbar"
-import { Route, Routes } from "react-router-dom"
-import AddProducts from "./components/AddProducts"
+import Footer from "./components/Footer"
+import Home from "./pages/Home"
+import Login from "./components/Login"
+import Signup from "./components/Signup"
+import MenuItems from "./components/MenuItems"
+import Report from "./components/Report"
 import ManageMenuItems from "./components/ManageMenuItems"
+import { AuthProvider } from "./context/AuthContext"
+import { ThemeContext } from "./context/ThemeContext"
+import { useContext } from "react"
+import AddSpecialTable from "./components/AddSpecialTable"
+import { TableProvider } from "./context/TableContext"
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false)
+  const { isDarkMode } = useContext(ThemeContext)
+
+  const theme = React.useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: isDarkMode ? "dark" : "light",
+          primary: {
+            main: "#1565c0",
+          },
+          secondary: {
+            main: "#f50057",
+          },
+        },
+      }),
+    [isDarkMode]
+  )
+
   return (
-    <div className={`App ${darkMode ? "dark-mode" : "light-mode"}`}>
-      <Navbar setDarkMode={setDarkMode} darkMode={darkMode} />
-      <Routes>
-        <Route exact path="/" element={<Body />} />
-        <Route exact path="/addspecialtable" element={<AddSpecialTable />} />
-        <Route exact path="/addproducts" element={<AddProducts />} />
-        <Route exact path="/menu" element={<ManageMenuItems />} />
-      </Routes>
-      <Footer />
-    </div>
+    <ThemeProvider theme={theme}>
+      <AuthProvider>
+        <TableProvider>
+          <Router>
+            <div className={`App ${isDarkMode ? "dark-mode" : ""}`}>
+              <Navbar />
+              <div className="content">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/menu-items" element={<MenuItems />} />
+                  <Route path="/report" element={<Report />} />
+                  <Route path="/manage-menu-items" element={<ManageMenuItems />} />
+                  <Route path="/add-special-table" element={<AddSpecialTable />} />
+                </Routes>
+              </div>
+              <Footer />
+            </div>
+          </Router>
+        </TableProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

@@ -1,130 +1,123 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import "./styles/addspecialtable.css"
+import { TableContext } from "../context/TableContext"
 
 const AddSpecialTable = () => {
-  const [specialTableSize, setSpecialTableSize] = useState("")
-  const [tablesToRemove, setTablesToRemove] = useState("")
-  const [message, setMessage] = useState({ text: "", type: "" })
-  const navigate = useNavigate()
+  const [tableName, setTableName] = useState('')
+  const [capacity, setCapacity] = useState(4)
+  const [showForm, setShowForm] = useState(false)
+  const [message, setMessage] = useState({ text: '', type: '' })
+  
+  const { addSpecialTable } = useContext(TableContext)
 
-  // Función para crear una mesa especial
-  const handleCreateSpecialTable = (e) => {
+  const handleAddSpecialTable = (e) => {
     e.preventDefault()
     
-    if (!specialTableSize || isNaN(specialTableSize) || specialTableSize <= 0) {
-      setMessage({
-        text: "Por favor, introduce un número válido de personas",
-        type: "error"
-      })
+    // Validaciones básicas
+    if (tableName.trim() === '') {
+      setMessage({ text: 'Por favor, ingresa un número de mesa', type: 'error' })
       return
     }
-
-    // En un escenario real, aquí enviaríamos los datos a la API o Firebase
-    // Por ahora, simplemente mostramos un mensaje de éxito
-    setMessage({
-      text: `Mesa especial para ${specialTableSize} personas creada con éxito`,
-      type: "success"
-    })
-
-    // Limpiar el campo después de crear la mesa
-    setSpecialTableSize("")
     
-    // Redirigir a la página principal después de 2 segundos
-    setTimeout(() => {
-      navigate('/')
-    }, 2000)
-  }
-
-  // Función para eliminar mesas
-  const handleRemoveTables = (e) => {
-    e.preventDefault()
-    
-    if (!tablesToRemove || isNaN(tablesToRemove) || tablesToRemove <= 0) {
-      setMessage({
-        text: "Por favor, introduce un número válido de mesas a eliminar",
-        type: "error"
-      })
+    const tableNumber = parseInt(tableName)
+    if (isNaN(tableNumber) || tableNumber <= 0) {
+      setMessage({ text: 'Por favor, ingresa un número de mesa válido', type: 'error' })
       return
     }
-
-    // En un escenario real, aquí enviaríamos los datos a la API o Firebase
-    // Por ahora, simplemente mostramos un mensaje de éxito
-    setMessage({
-      text: `${tablesToRemove} mesas han sido eliminadas con éxito`,
-      type: "success"
-    })
-
-    // Limpiar el campo después de eliminar las mesas
-    setTablesToRemove("")
     
-    // Redirigir a la página principal después de 2 segundos
-    setTimeout(() => {
-      navigate('/')
-    }, 2000)
+    // Intentar añadir la mesa especial
+    try {
+      const added = addSpecialTable(tableNumber, capacity)
+      
+      if (added) {
+        setMessage({ text: `Mesa especial #${tableNumber} añadida con éxito`, type: 'success' })
+        // Limpiar formulario
+        setTableName('')
+        setCapacity(4)
+        // Ocultar formulario después de añadir
+        setShowForm(false)
+        
+        // Limpiar mensaje después de 3 segundos
+        setTimeout(() => {
+          setMessage({ text: '', type: '' })
+        }, 3000)
+      } else {
+        setMessage({ text: 'Ya existe una mesa con ese número', type: 'error' })
+      }
+    } catch (error) {
+      setMessage({ text: error.message || 'Error al añadir mesa especial', type: 'error' })
+    }
   }
 
   return (
     <div className="container-add-special-table">
-      <div className="special-table-container">
-        <h2 className="special-table-title">Gestión de Mesas Especiales</h2>
-        
-        {message.text && (
-          <div className={`message ${message.type}`}>
-            {message.text}
-          </div>
-        )}
-        
-        <div className="forms-container">
-          {/* Formulario para crear mesa especial */}
-          <form onSubmit={handleCreateSpecialTable} className="form-table">
-            <h3>Crear Mesa Especial</h3>
-            
+      {!showForm ? (
+        <button 
+          className="add-table-button" 
+          onClick={() => setShowForm(true)}
+        >
+          + Añadir Mesa Especial
+        </button>
+      ) : (
+        <div className="special-table-form">
+          <h3 className="special-table-title">Crear Mesa Especial</h3>
+          
+          <form onSubmit={handleAddSpecialTable} className="forms-container">
             <div className="form-group">
-              <label className="label-add-tables" htmlFor="specialTableSize">
-                Número de personas
-              </label>
+              <label htmlFor="tableName">Número de Mesa:</label>
               <input
-                id="specialTableSize"
-                className="input-add-tables"
-                placeholder="Ej: 8"
                 type="number"
+                id="tableName"
+                value={tableName}
+                onChange={(e) => setTableName(e.target.value)}
                 min="1"
-                value={specialTableSize}
-                onChange={(e) => setSpecialTableSize(e.target.value)}
+                placeholder="Ej: 26"
+                className="form-input"
               />
             </div>
-
-            <button className="btn-add-tables" type="submit">
-              Crear Mesa Especial
-            </button>
-          </form>
-
-          {/* Formulario para eliminar mesas */}
-          <form onSubmit={handleRemoveTables} className="form-table">
-            <h3>Eliminar Mesas</h3>
             
             <div className="form-group">
-              <label className="label-add-tables" htmlFor="tablesToRemove">
-                Número de mesas a eliminar
-              </label>
-              <input
-                id="tablesToRemove"
-                className="input-add-tables"
-                placeholder="Ej: 2"
-                type="number"
-                min="1"
-                value={tablesToRemove}
-                onChange={(e) => setTablesToRemove(e.target.value)}
-              />
+              <label htmlFor="capacity">Número de Sillas:</label>
+              <select
+                id="capacity"
+                value={capacity}
+                onChange={(e) => setCapacity(parseInt(e.target.value))}
+                className="form-select"
+              >
+                <option value="2">2 sillas</option>
+                <option value="4">4 sillas</option>
+                <option value="6">6 sillas</option>
+                <option value="8">8 sillas</option>
+                <option value="10">10 sillas</option>
+                <option value="12">12 sillas</option>
+              </select>
             </div>
-
-            <button className="btn-remove-tables" type="submit">
-              Eliminar Mesas
-            </button>
+            
+            <div className="form-actions">
+              <button 
+                type="button" 
+                className="cancel-button"
+                onClick={() => {
+                  setShowForm(false)
+                  setMessage({ text: '', type: '' })
+                }}
+              >
+                Cancelar
+              </button>
+              <button type="submit" className="submit-button">
+                Crear Mesa
+              </button>
+            </div>
           </form>
+          
+          {message.text && (
+            <div className={`message ${message.type}`}>
+              {message.text}
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </div>
   )
 }

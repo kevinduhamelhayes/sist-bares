@@ -1,18 +1,30 @@
+import { useContext } from "react"
 import Unit from "./Unit"
+import SpecialUnit from "./SpecialUnit"
 import "./styles/body.css"
+import { TableContext } from "../context/TableContext"
 
 const Body = () => {
-  const totalUnits = 25
+  const { tables } = useContext(TableContext)
 
   return (
     <div className="body-container">
-    <div className="body">
-      {Array(totalUnits)
-        .fill()
-        .map((_, index) => (
-          <Unit key={index} tableNumber={index+1} />
+      <div className="body">
+        {tables.map((table) => (
+          table.isSpecial ? (
+            <SpecialUnit 
+              key={table.id}
+              tableNumber={table.number}
+              chairCount={table.capacity}
+            />
+          ) : (
+            <Unit 
+              key={table.id} 
+              tableNumber={table.number} 
+            />
+          )
         ))}
-    </div>
+      </div>
     </div>
   )
 }

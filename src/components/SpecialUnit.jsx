@@ -1,10 +1,11 @@
 import { useState } from "react"
 import "./styles/body.css"
 import "./styles/unit.css"
+import "./styles/specialUnit.css"
 
-const Unit = ({ tableNumber }) => {
+const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
   const [tableColor, setTableColor] = useState("#ddd")
-  const [chairColors, setChairColors] = useState(Array(4).fill("#aaa"))
+  const [chairColors, setChairColors] = useState(Array(chairCount).fill("#aaa"))
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [orders, setOrders] = useState([])
   const [currentChairIndex, setCurrentChairIndex] = useState(null)
@@ -112,84 +113,73 @@ const Unit = ({ tableNumber }) => {
     return orders.filter(order => order.chairIndex === chairIndex)
   }
 
+  // Calculamos el ángulo para cada silla alrededor de la mesa especial
+  const getChairPosition = (index) => {
+    const angle = (360 / chairCount) * index;
+    const radians = (angle * Math.PI) / 180;
+    
+    // Para mesas de 5-8 personas
+    const radius = chairCount <= 8 ? 110 : 150;
+    
+    // Cálculo de la posición
+    const left = 50 + Math.cos(radians) * radius;
+    const top = 50 + Math.sin(radians) * radius;
+    
+    return { left: `${left}%`, top: `${top}%` };
+  };
+
   return (
-    <div className="unidad">
-      {/* Sillas posicionadas alrededor de la mesa */}
-      <div
-        className={`chair top ${chairColors[0] !== chairStates.empty ? 'occupied' : ''}`}
-        style={{ backgroundColor: chairColors[0] }}
-        onClick={() => handleChairClick(0)}
-        onContextMenu={(e) => {
-          e.preventDefault()
-          handleAddOrderToChair(0)
-        }}
-      >
-        <span className="chair-number">1</span>
-        {getOrdersByChair(0).length > 0 && (
-          <span className="chair-orders">{getOrdersByChair(0).length}</span>
-        )}
-      </div>
+    <div className="unidad special-unit">
+      {/* Etiqueta de mesa especial */}
+      <div className="special-label">Especial</div>
+      
+      {/* Sillas dinámicas alrededor de la mesa */}
+      {chairColors.map((color, index) => {
+        const position = getChairPosition(index);
+        
+        return (
+          <div
+            key={index}
+            className={`chair special-chair ${color !== chairStates.empty ? 'occupied' : ''}`}
+            style={{ 
+              backgroundColor: color,
+              left: position.left,
+              top: position.top,
+            }}
+            onClick={() => handleChairClick(index)}
+            onContextMenu={(e) => {
+              e.preventDefault()
+              handleAddOrderToChair(index)
+            }}
+          >
+            <span className="chair-number">{index + 1}</span>
+            {getOrdersByChair(index).length > 0 && (
+              <span className="chair-orders">{getOrdersByChair(index).length}</span>
+            )}
+          </div>
+        );
+      })}
       
       <div
-        className={`chair right ${chairColors[1] !== chairStates.empty ? 'occupied' : ''}`}
-        style={{ backgroundColor: chairColors[1] }}
-        onClick={() => handleChairClick(1)}
-        onContextMenu={(e) => {
-          e.preventDefault()
-          handleAddOrderToChair(1)
+        className="table special-table"
+        style={{ 
+          backgroundColor: tableColor,
+          width: chairCount <= 8 ? '180px' : '220px',
+          height: chairCount <= 8 ? '120px' : '150px'
         }}
-      >
-        <span className="chair-number">2</span>
-        {getOrdersByChair(1).length > 0 && (
-          <span className="chair-orders">{getOrdersByChair(1).length}</span>
-        )}
-      </div>
-      
-      <div
-        className={`chair bottom ${chairColors[2] !== chairStates.empty ? 'occupied' : ''}`}
-        style={{ backgroundColor: chairColors[2] }}
-        onClick={() => handleChairClick(2)}
-        onContextMenu={(e) => {
-          e.preventDefault()
-          handleAddOrderToChair(2)
-        }}
-      >
-        <span className="chair-number">3</span>
-        {getOrdersByChair(2).length > 0 && (
-          <span className="chair-orders">{getOrdersByChair(2).length}</span>
-        )}
-      </div>
-      
-      <div
-        className={`chair left ${chairColors[3] !== chairStates.empty ? 'occupied' : ''}`}
-        style={{ backgroundColor: chairColors[3] }}
-        onClick={() => handleChairClick(3)}
-        onContextMenu={(e) => {
-          e.preventDefault()
-          handleAddOrderToChair(3)
-        }}
-      >
-        <span className="chair-number">4</span>
-        {getOrdersByChair(3).length > 0 && (
-          <span className="chair-orders">{getOrdersByChair(3).length}</span>
-        )}
-      </div>
-      
-      {/* Mesa con click para activar/desactivar */}
-      <div
-        className="table"
-        style={{ backgroundColor: tableColor }}
         onClick={handleTableClick}
       >
-        <div className="table-number">Mesa {tableNumber}</div>
-        {orders.length > 0 && (
-          <div className="table-orders">
-            Pedidos: {orders.length} (${getTotalAmount()})
-          </div>
-        )}
+        <div>
+          <div className="table-number">Mesa {tableNumber}</div>
+          <div className="table-capacity">{chairCount} personas</div>
+          {orders.length > 0 && (
+            <div className="table-orders">
+              Pedidos: {orders.length} (${getTotalAmount()})
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Modal para añadir pedidos */}
       {showOrderModal && (
         <div className="order-modal">
           <div className="order-modal-content">
@@ -232,4 +222,4 @@ const Unit = ({ tableNumber }) => {
   )
 }
 
-export default Unit
+export default SpecialUnit 
