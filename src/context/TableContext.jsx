@@ -4,14 +4,19 @@ import { createContext, useState, useEffect } from 'react';
 export const TableContext = createContext();
 
 export const TableProvider = ({ children }) => {
-  // Estado para las mesas
+  // Estado para las mesas - Inicializar con array vacío
   const [tables, setTables] = useState([]);
+
+  // Flag para controlar si ya se inicializaron las mesas
+  const [initialized, setInitialized] = useState(false);
   
   // Inicializar con 25 mesas estándar cuando se monta el componente
   useEffect(() => {
-    // Solo inicializar si no hay mesas
-    if (tables.length === 0) {
+    // Solo inicializar una vez
+    if (!initialized) {
       console.log('Inicializando mesas estándar...');
+      
+      // Crear las mesas estándar
       const initialTables = Array(25).fill().map((_, index) => ({
         id: `standard-${index + 1}`,
         number: index + 1,
@@ -20,9 +25,13 @@ export const TableProvider = ({ children }) => {
         isSpecial: false
       }));
       
+      // Actualizar el estado
       setTables(initialTables);
+      setInitialized(true);
+      
+      console.log('Mesas estándar inicializadas:', initialTables.length);
     }
-  }, [tables.length]);
+  }, [initialized]);
 
   // Añadir una mesa especial
   const addSpecialTable = (tableNumber, capacity) => {
@@ -38,6 +47,7 @@ export const TableProvider = ({ children }) => {
     // Verificar si ya existe una mesa con ese número
     if (tables.some(table => table.number === tableNumber)) {
       // La mesa ya existe
+      console.log(`Error: Ya existe una mesa con el número ${tableNumber}`);
       return false;
     }
     

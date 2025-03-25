@@ -1,8 +1,13 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import "./styles/body.css"
 import "./styles/unit.css"
 
 const Unit = ({ tableNumber }) => {
+  // Log para debugging
+  useEffect(() => {
+    console.log(`Rendering Unit for table ${tableNumber}`);
+  }, [tableNumber]);
+
   const [tableColor, setTableColor] = useState("#ddd")
   const [chairColors, setChairColors] = useState(Array(4).fill("#aaa"))
   const [showOrderModal, setShowOrderModal] = useState(false)

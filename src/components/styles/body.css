@@ -5,7 +5,7 @@
   margin: 0 auto;
 }
 
-.body {
+.body-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
@@ -14,12 +14,13 @@
 }
 
 .unidad {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  margin: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  width: 250px;
-  height: 200px;
   transition: transform 0.3s ease;
 }
 
@@ -28,6 +29,7 @@
 }
 
 .table {
+  position: relative;
   width: 150px;
   height: 100px;
   background-color: #ddd;
@@ -53,14 +55,15 @@
 }
 
 .chair {
-  position: absolute;
-  width: 50px;
-  height: 50px;
+  position: absolute !important;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
   background-color: #aaa;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 5px;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.875rem;
@@ -77,36 +80,46 @@
   transform: scale(1.05);
 }
 
-/* Las posiciones de las sillas ahora se manejan en unit.css */
-/* 
-.chair:nth-child(1), .chair:nth-child(2) {
-  top: 0px;
+/* Posiciones específicas para las 4 sillas */
+.chair.top {
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.chair:nth-child(1) {
-  left: 50px;
+.chair.right {
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
 }
 
-.chair:nth-child(2) {
-  right: 50px;
+.chair.bottom {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.chair:nth-child(3), .chair:nth-child(4) {
-  bottom: 0px;
+.chair.left {
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
 }
 
-.chair:nth-child(3) {
-  left: 50px;
+/* Mensaje cuando no hay mesas */
+.no-tables-message {
+  grid-column: 1 / -1;
+  padding: 20px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--text-color);
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  margin: 20px 0;
 }
-
-.chair:nth-child(4) {
-  right: 50px;
-}
-*/
 
 /* Estilos responsivos */
 @media (max-width: 1200px) {
-  .body {
+  .body-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
 }
@@ -116,14 +129,15 @@
     padding-top: 80px;
   }
   
-  .body {
+  .body-grid {
     margin: 15px;
     gap: 15px;
   }
   
   .unidad {
     width: 220px;
-    height: 180px;
+    height: 220px;
+    margin: 15px;
   }
   
   .table {
@@ -132,20 +146,21 @@
   }
   
   .chair {
-    width: 45px;
-    height: 45px;
+    width: 35px;
+    height: 35px;
   }
 }
 
 @media (max-width: 768px) {
-  .body {
+  .body-grid {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 10px;
   }
   
   .unidad {
     width: 180px;
-    height: 150px;
+    height: 180px;
+    margin: 10px;
   }
   
   .table {
@@ -155,28 +170,10 @@
   }
   
   .chair {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     font-size: 0.75rem;
   }
-  
-  /* 
-  .chair:nth-child(1) {
-    left: 30px;
-  }
-  
-  .chair:nth-child(2) {
-    right: 30px;
-  }
-  
-  .chair:nth-child(3) {
-    left: 30px;
-  }
-  
-  .chair:nth-child(4) {
-    right: 30px;
-  }
-  */
 }
 
 @media (max-width: 480px) {
@@ -184,14 +181,15 @@
     padding-top: 70px;
   }
   
-  .body {
+  .body-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     margin: 10px;
   }
   
   .unidad {
     width: 150px;
-    height: 130px;
+    height: 150px;
+    margin: 5px;
   }
   
   .table {
@@ -201,26 +199,8 @@
   }
   
   .chair {
-    width: 35px;
-    height: 35px;
-    font-size: 0.75rem;
+    width: 25px;
+    height: 25px;
+    font-size: 0.7rem;
   }
-  
-  /*
-  .chair:nth-child(1) {
-    left: 20px;
-  }
-  
-  .chair:nth-child(2) {
-    right: 20px;
-  }
-  
-  .chair:nth-child(3) {
-    left: 20px;
-  }
-  
-  .chair:nth-child(4) {
-    right: 20px;
-  }
-  */
 }
