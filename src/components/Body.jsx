@@ -14,10 +14,11 @@ const Body = () => {
 
   return (
     <div className="body-container">
-      <div className="body body-grid">
+      <div className="body-grid">
         {tables && tables.length > 0 ? (
-          tables.map((table) => (
-            table.isSpecial ? (
+          tables.map((table) => {
+            console.log(`Rendering table ${table.number}, isSpecial: ${table.isSpecial}`);
+            return table.isSpecial ? (
               <SpecialUnit 
                 key={table.id}
                 tableNumber={table.number}
@@ -29,7 +30,7 @@ const Body = () => {
                 tableNumber={table.number} 
               />
             )
-          ))
+          })
         ) : (
           <div className="no-tables-message">
             No hay mesas disponibles. Por favor, intenta recargar la página.

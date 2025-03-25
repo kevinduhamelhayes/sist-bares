@@ -4,34 +4,24 @@ import { createContext, useState, useEffect } from 'react';
 export const TableContext = createContext();
 
 export const TableProvider = ({ children }) => {
-  // Estado para las mesas - Inicializar con array vacío
-  const [tables, setTables] = useState([]);
-
-  // Flag para controlar si ya se inicializaron las mesas
-  const [initialized, setInitialized] = useState(false);
+  // Estado para las mesas - Inicializar directamente con las 25 mesas estándar
+  const [tables, setTables] = useState(() => {
+    console.log('Inicializando mesas estándar directamente en useState...');
+    
+    // Crear las 25 mesas estándar inmediatamente
+    return Array(25).fill().map((_, index) => ({
+      id: `standard-${index + 1}`,
+      number: index + 1,
+      type: 'standard',
+      capacity: 4,
+      isSpecial: false
+    }));
+  });
   
-  // Inicializar con 25 mesas estándar cuando se monta el componente
+  // Para debugging
   useEffect(() => {
-    // Solo inicializar una vez
-    if (!initialized) {
-      console.log('Inicializando mesas estándar...');
-      
-      // Crear las mesas estándar
-      const initialTables = Array(25).fill().map((_, index) => ({
-        id: `standard-${index + 1}`,
-        number: index + 1,
-        type: 'standard',
-        capacity: 4,
-        isSpecial: false
-      }));
-      
-      // Actualizar el estado
-      setTables(initialTables);
-      setInitialized(true);
-      
-      console.log('Mesas estándar inicializadas:', initialTables.length);
-    }
-  }, [initialized]);
+    console.log('Estado actual de mesas en TableContext:', tables);
+  }, [tables]);
 
   // Añadir una mesa especial
   const addSpecialTable = (tableNumber, capacity) => {
@@ -61,8 +51,11 @@ export const TableProvider = ({ children }) => {
     };
     
     // Añadir la nueva mesa al estado
-    setTables(prevTables => [...prevTables, newTable]);
-    console.log(`Mesa especial #${tableNumber} añadida con ${capacity} personas.`);
+    setTables(prevTables => {
+      const updatedTables = [...prevTables, newTable];
+      console.log(`Mesa especial #${tableNumber} añadida. Total de mesas: ${updatedTables.length}`);
+      return updatedTables;
+    });
     
     return true;
   };
@@ -77,8 +70,11 @@ export const TableProvider = ({ children }) => {
     }
     
     // Eliminar la mesa del estado
-    setTables(prevTables => prevTables.filter(table => table.number !== tableNumber));
-    console.log(`Mesa #${tableNumber} eliminada.`);
+    setTables(prevTables => {
+      const updatedTables = prevTables.filter(table => table.number !== tableNumber);
+      console.log(`Mesa #${tableNumber} eliminada. Mesas restantes: ${updatedTables.length}`);
+      return updatedTables;
+    });
     
     return true;
   };
@@ -94,16 +90,14 @@ export const TableProvider = ({ children }) => {
     }
     
     // Eliminar las últimas n mesas
-    setTables(prevTables => prevTables.slice(0, prevTables.length - count));
-    console.log(`${count} mesas eliminadas.`);
+    setTables(prevTables => {
+      const updatedTables = prevTables.slice(0, prevTables.length - count);
+      console.log(`${count} mesas eliminadas. Mesas restantes: ${updatedTables.length}`);
+      return updatedTables;
+    });
     
     return count;
   };
-
-  // Para debugging
-  useEffect(() => {
-    console.log('Estado actual de mesas:', tables);
-  }, [tables]);
 
   return (
     <TableContext.Provider value={{ 

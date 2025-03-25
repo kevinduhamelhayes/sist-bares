@@ -21,6 +21,23 @@ const Unit = ({ tableNumber }) => {
     ordered: "pink"    // rosa (pedido realizado)
   }
 
+  // Se asegura que todas las sillas sean visibles al montar el componente
+  useEffect(() => {
+    console.log(`Chair colors for table ${tableNumber}:`, chairColors);
+    
+    // Verificar que las sillas están en la posición correcta usando el id en lugar del índice
+    setTimeout(() => {
+      // Damos un pequeño tiempo para que el DOM se actualice
+      const unidadElement = document.querySelector(`[data-table-number="${tableNumber}"]`);
+      if (unidadElement) {
+        const chairElements = unidadElement.querySelectorAll('.chair');
+        console.log(`Found ${chairElements.length} chair elements for table ${tableNumber}`);
+      } else {
+        console.log(`Could not find unidad element for table ${tableNumber}`);
+      }
+    }, 100);
+  }, [tableNumber, chairColors]);
+
   const handleTableClick = () => {
     // Si la mesa está inactiva, la activamos
     if (tableColor === chairStates.empty) {
@@ -118,7 +135,7 @@ const Unit = ({ tableNumber }) => {
   }
 
   return (
-    <div className="unidad">
+    <div className="unidad" data-table-number={tableNumber}>
       {/* Sillas posicionadas alrededor de la mesa */}
       <div
         className={`chair top ${chairColors[0] !== chairStates.empty ? 'occupied' : ''}`}

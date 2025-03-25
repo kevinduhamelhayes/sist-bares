@@ -13,98 +13,6 @@
   justify-items: center;
 }
 
-.unidad {
-  position: relative;
-  width: 250px;
-  height: 250px;
-  margin: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: transform 0.3s ease;
-}
-
-.unidad:hover {
-  transform: translateY(-5px);
-}
-
-.table {
-  position: relative;
-  width: 150px;
-  height: 100px;
-  background-color: #ddd;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
-  z-index: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  text-align: center;
-  flex-direction: column;
-  padding: 0.5rem;
-}
-
-.dark-mode .table {
-  background-color: #444;
-  color: #e4e6e8;
-}
-
-.table:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.chair {
-  position: absolute !important;
-  z-index: 2;
-  width: 40px;
-  height: 40px;
-  background-color: #aaa;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.875rem;
-  color: #333;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.dark-mode .chair {
-  background-color: #555;
-  color: #e4e6e8;
-}
-
-.chair:hover {
-  transform: scale(1.05);
-}
-
-/* Posiciones específicas para las 4 sillas */
-.chair.top {
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.chair.right {
-  top: 50%;
-  right: 20px;
-  transform: translateY(-50%);
-}
-
-.chair.bottom {
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.chair.left {
-  top: 50%;
-  left: 20px;
-  transform: translateY(-50%);
-}
-
 /* Mensaje cuando no hay mesas */
 .no-tables-message {
   grid-column: 1 / -1;
@@ -117,7 +25,7 @@
   margin: 20px 0;
 }
 
-/* Estilos responsivos */
+/* Estilos responsivos para el grid */
 @media (max-width: 1200px) {
   .body-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -133,46 +41,12 @@
     margin: 15px;
     gap: 15px;
   }
-  
-  .unidad {
-    width: 220px;
-    height: 220px;
-    margin: 15px;
-  }
-  
-  .table {
-    width: 140px;
-    height: 90px;
-  }
-  
-  .chair {
-    width: 35px;
-    height: 35px;
-  }
 }
 
 @media (max-width: 768px) {
   .body-grid {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 10px;
-  }
-  
-  .unidad {
-    width: 180px;
-    height: 180px;
-    margin: 10px;
-  }
-  
-  .table {
-    width: 120px;
-    height: 80px;
-    font-size: 0.9rem;
-  }
-  
-  .chair {
-    width: 30px;
-    height: 30px;
-    font-size: 0.75rem;
   }
 }
 
@@ -184,23 +58,5 @@
   .body-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     margin: 10px;
-  }
-  
-  .unidad {
-    width: 150px;
-    height: 150px;
-    margin: 5px;
-  }
-  
-  .table {
-    width: 100px;
-    height: 70px;
-    font-size: 0.8rem;
-  }
-  
-  .chair {
-    width: 25px;
-    height: 25px;
-    font-size: 0.7rem;
   }
 }
