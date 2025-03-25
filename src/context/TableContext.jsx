@@ -7,18 +7,22 @@ export const TableProvider = ({ children }) => {
   // Estado para las mesas
   const [tables, setTables] = useState([]);
   
-  // Inicializar con 25 mesas estándar
+  // Inicializar con 25 mesas estándar cuando se monta el componente
   useEffect(() => {
-    const initialTables = Array(25).fill().map((_, index) => ({
-      id: index + 1,
-      number: index + 1,
-      type: 'standard',
-      capacity: 4,
-      isSpecial: false
-    }));
-    
-    setTables(initialTables);
-  }, []);
+    // Solo inicializar si no hay mesas
+    if (tables.length === 0) {
+      console.log('Inicializando mesas estándar...');
+      const initialTables = Array(25).fill().map((_, index) => ({
+        id: `standard-${index + 1}`,
+        number: index + 1,
+        type: 'standard',
+        capacity: 4,
+        isSpecial: false
+      }));
+      
+      setTables(initialTables);
+    }
+  }, [tables.length]);
 
   // Añadir una mesa especial
   const addSpecialTable = (tableNumber, capacity) => {
@@ -48,6 +52,7 @@ export const TableProvider = ({ children }) => {
     
     // Añadir la nueva mesa al estado
     setTables(prevTables => [...prevTables, newTable]);
+    console.log(`Mesa especial #${tableNumber} añadida con ${capacity} personas.`);
     
     return true;
   };
@@ -63,6 +68,7 @@ export const TableProvider = ({ children }) => {
     
     // Eliminar la mesa del estado
     setTables(prevTables => prevTables.filter(table => table.number !== tableNumber));
+    console.log(`Mesa #${tableNumber} eliminada.`);
     
     return true;
   };
@@ -79,9 +85,15 @@ export const TableProvider = ({ children }) => {
     
     // Eliminar las últimas n mesas
     setTables(prevTables => prevTables.slice(0, prevTables.length - count));
+    console.log(`${count} mesas eliminadas.`);
     
     return count;
   };
+
+  // Para debugging
+  useEffect(() => {
+    console.log('Estado actual de mesas:', tables);
+  }, [tables]);
 
   return (
     <TableContext.Provider value={{ 

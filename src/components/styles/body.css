@@ -77,6 +77,8 @@
   transform: scale(1.05);
 }
 
+/* Las posiciones de las sillas ahora se manejan en unit.css */
+/* 
 .chair:nth-child(1), .chair:nth-child(2) {
   top: 0px;
 }
@@ -100,6 +102,7 @@
 .chair:nth-child(4) {
   right: 50px;
 }
+*/
 
 /* Estilos responsivos */
 @media (max-width: 1200px) {
@@ -157,6 +160,7 @@
     font-size: 0.75rem;
   }
   
+  /* 
   .chair:nth-child(1) {
     left: 30px;
   }
@@ -172,6 +176,7 @@
   .chair:nth-child(4) {
     right: 30px;
   }
+  */
 }
 
 @media (max-width: 480px) {
@@ -198,22 +203,24 @@
   .chair {
     width: 35px;
     height: 35px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
   
+  /*
   .chair:nth-child(1) {
-    left: 25px;
+    left: 20px;
   }
   
   .chair:nth-child(2) {
-    right: 25px;
+    right: 20px;
   }
   
   .chair:nth-child(3) {
-    left: 25px;
+    left: 20px;
   }
   
   .chair:nth-child(4) {
-    right: 25px;
+    right: 20px;
   }
+  */
 }

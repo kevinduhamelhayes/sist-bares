@@ -16,6 +16,7 @@
   --dark-color: #333;
   --text-color: #333;
   --text-light: #6c757d;
+  --text-secondary: #6c757d;
   --border-color: #ddd;
   --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   --table-bg: #ddd;
@@ -23,6 +24,7 @@
   --chair-color: #333;
   --modal-bg: rgba(0, 0, 0, 0.5);
   --modal-content-bg: #fff;
+  --background-color: #fff;
 }
 
 body {
@@ -41,6 +43,7 @@ body {
 .light-mode {
   --text-color: #333;
   --text-light: #6c757d;
+  --text-secondary: #6c757d;
   --bg-color: #f0f2f5;
   --item-bg: #ffffff;
   --table-bg: #ddd;
@@ -51,11 +54,14 @@ body {
   --form-bg: #f8f9fa;
   --form-input-bg: #fff;
   --form-input-color: #333;
+  --background-color: #fff;
+  --border-color: #ddd;
 }
 
 .dark-mode {
   --text-color: #e4e6e8;
   --text-light: #a0a5aa;
+  --text-secondary: #a0a5aa;
   --bg-color: #1a1a1a;
   --item-bg: #2d2d2d;
   --table-bg: #3d3d3d;
@@ -66,6 +72,8 @@ body {
   --form-bg: #333;
   --form-input-bg: #444;
   --form-input-color: #e4e6e8;
+  --background-color: #2d2d2d;
+  --border-color: #444;
   background-color: var(--bg-color);
   color: var(--text-color);
 }

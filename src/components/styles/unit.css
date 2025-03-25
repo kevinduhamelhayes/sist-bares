@@ -21,6 +21,7 @@
   transition: all 0.3s ease;
   cursor: pointer;
   z-index: 1;
+  flex-direction: column;
 }
 
 .table:hover {
@@ -143,8 +144,8 @@
 }
 
 .order-modal-content {
-  background-color: var(--background-color);
-  color: var(--text-color);
+  background-color: var(--background-color, white);
+  color: var(--text-color, black);
   padding: 20px;
   border-radius: 10px;
   width: 90%;
@@ -156,9 +157,9 @@
 
 .order-modal h3 {
   margin-top: 0;
-  color: var(--primary-color);
+  color: var(--primary-color, #1565c0);
   text-align: center;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color, #ddd);
   padding-bottom: 10px;
 }
 
@@ -172,7 +173,7 @@
 .current-orders h4 {
   margin-top: 0;
   margin-bottom: 10px;
-  color: var(--secondary-color);
+  color: var(--secondary-color, #f50057);
 }
 
 .current-orders ul {
@@ -191,14 +192,14 @@
   padding: 8px;
   border: none;
   border-radius: 5px;
-  background-color: var(--primary-color);
+  background-color: var(--primary-color, #1565c0);
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .menu-items button:hover {
-  background-color: var(--secondary-color);
+  background-color: var(--secondary-color, #f50057);
 }
 
 .modal-actions {
@@ -224,7 +225,7 @@
 
 .help-text {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #666);
   text-align: center;
 }
 
