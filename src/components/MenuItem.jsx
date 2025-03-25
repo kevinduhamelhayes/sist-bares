@@ -1,68 +1,180 @@
-import { FaRegTrashAlt, FaPen, FaCheck } from "react-icons/fa";
+import { FaRegTrashAlt, FaPen, FaCheck, FaToggleOn, FaToggleOff } from "react-icons/fa";
 import { AiFillCloseSquare } from "react-icons/ai";
 import { useState } from "react";
-import { db } from "./Firebase";
+import { db } from "./firebaseConfig";
 import { updateDoc, doc } from "firebase/firestore";
+import "./styles/menuItem.css";
 
-const style = {
-  li: "flex justify-between bg-slate-200 p-4 my-2 capitalize",
-  row: "flex items-center",
-  text: "ml-2 cursor-pointer",
-  button: "cursor flex items-center justify-center",
-};
-
-const MenuItem = ({ item, removeMenuItem }) => {
+const MenuItem = ({ 
+  item, 
+  removeMenuItem, 
+  toggleAvailability, 
+  bulkEditMode = false, 
+  isSelected = false, 
+  onSelect = () => {}
+}) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(item.name);
+  const [formData, setFormData] = useState({
+    name: item.name,
+    price: item.price || 0,
+    description: item.description || "",
+    category: item.category || "bebidas"
+  });
 
   const handleChange = (e) => {
-    setValue(e.target.value);
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: name === 'price' ? parseFloat(value) : value
+    });
   };
 
-  const editItemName = async () => {
+  const editItem = async () => {
     await updateDoc(doc(db, "menuItems", item.id), {
-      name: value,
+      name: formData.name,
+      price: parseFloat(formData.price),
+      description: formData.description,
+      category: formData.category
     });
   };
 
   const handleConfirmation = () => {
-    editItemName();
+    editItem();
     setIsEditing(false);
   };
 
+  const formatPrice = (price) => {
+    return `$${parseFloat(price).toFixed(2)}`;
+  };
+
   return (
-    <li className={style.li}>
-      <div className={style.row}>
-        {isEditing ? (
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => handleChange(e)}
-            className="ml-2 rounded-md pl-2"
+    <li className={`menu-item ${!item.available ? 'unavailable' : ''} ${isSelected ? 'selected' : ''}`} onClick={() => bulkEditMode && onSelect(item.id)}>
+      {bulkEditMode ? (
+        <div className="menu-item-bulk-select">
+          <input 
+            type="checkbox" 
+            checked={isSelected} 
+            onChange={() => onSelect(item.id)}
+            onClick={(e) => e.stopPropagation()}
           />
-        ) : (
-          <p className={style.text}>{item.name}</p>
-        )}
-      </div>
-      <div className="flex gap-2">
+        </div>
+      ) : null}
+      
+      <div className="menu-item-content">
         {isEditing ? (
-          <div className="flex gap-2 item-center">
-            <button onClick={() => setIsEditing(false)}>
-              <AiFillCloseSquare size="1.2em" />
-            </button>
-            <button onClick={handleConfirmation}>
-              <FaCheck size="1.2em" />
-            </button>
+          <div className="menu-item-edit-form">
+            <div className="form-group">
+              <label>Nombre:</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Precio:</label>
+              <input
+                type="number"
+                name="price"
+                step="0.01"
+                value={formData.price}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Categoría:</label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+              >
+                <option value="bebidas">Bebidas</option>
+                <option value="comidas">Comidas</option>
+                <option value="postres">Postres</option>
+                <option value="entrantes">Entrantes</option>
+              </select>
+            </div>
+            
+            <div className="form-group">
+              <label>Descripción:</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows="2"
+              ></textarea>
+            </div>
           </div>
         ) : (
-          <button onClick={() => setIsEditing(true)}>
-            <FaPen size="1.2em" />
-          </button>
+          <div className="menu-item-details">
+            <div className="menu-item-main-info">
+              <h4 className="menu-item-name">{item.name}</h4>
+              <div className="menu-item-price">{formatPrice(item.price)}</div>
+            </div>
+            
+            {item.description && (
+              <p className="menu-item-description">{item.description}</p>
+            )}
+            
+            <div className="menu-item-meta">
+              <span className="menu-item-category">{item.category}</span>
+              <span className="menu-item-availability">
+                {item.available ? 'Disponible' : 'No disponible'}
+              </span>
+            </div>
+          </div>
         )}
-        <button onClick={() => removeMenuItem(item.id)}>
-          <FaRegTrashAlt size="1.2em" />
-        </button>
       </div>
+      
+      {!bulkEditMode && (
+        <div className="menu-item-actions">
+          {isEditing ? (
+            <div className="edit-actions">
+              <button onClick={(e) => {
+                e.stopPropagation();
+                setIsEditing(false);
+              }} className="btn-icon btn-cancel">
+                <AiFillCloseSquare size="1.2em" />
+              </button>
+              <button onClick={(e) => {
+                e.stopPropagation();
+                handleConfirmation();
+              }} className="btn-icon btn-confirm">
+                <FaCheck size="1.2em" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <button onClick={(e) => {
+                e.stopPropagation();
+                setIsEditing(true);
+              }} className="btn-icon btn-edit">
+                <FaPen size="1.2em" />
+              </button>
+              
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleAvailability(item.id, item.available)
+                }} 
+                className="btn-icon btn-toggle"
+              >
+                {item.available ? <FaToggleOn size="1.5em" /> : <FaToggleOff size="1.5em" />}
+              </button>
+              
+              <button onClick={(e) => {
+                e.stopPropagation();
+                removeMenuItem(item.id);
+              }} className="btn-icon btn-delete">
+                <FaRegTrashAlt size="1.2em" />
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </li>
   );
 };
