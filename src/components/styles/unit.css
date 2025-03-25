@@ -1,0 +1,76 @@
+.table-number {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.table-orders {
+  font-size: 0.8rem;
+  margin-top: 5px;
+  color: #444;
+}
+
+.order-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.order-modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+}
+
+.order-modal h3 {
+  margin-top: 0;
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.menu-items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.menu-items button {
+  padding: 10px;
+  background-color: #00A884;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.menu-items button:hover {
+  background-color: #008064;
+}
+
+.close-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #ff5c5c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.close-btn:hover {
+  background-color: #ff3c3c;
+} 
