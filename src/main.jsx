@@ -2,10 +2,12 @@
 //import { getFirestore } from "firebase/firestore"
 //import { getAuth } from "firebase/auth"
 //import { getStorage } from "firebase/storage"
-import ReactDOM from "react-dom/client"
-import App from "./App.jsx"
-import "./index.css"
-import { BrowserRouter } from "react-router-dom"
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App.jsx'
+import './index.css'
+import { ThemeProvider } from './context/ThemeContext'
 
 //const firebaseApp = initializeApp({
 //    apiKey: "AIzaSyAjB-I4L-84t2xtRPws1Bdq1K66fh3LWRU",
@@ -17,8 +19,12 @@ import { BrowserRouter } from "react-router-dom"
 //});
 //const app = initializeApp(firebaseConfig);
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <ThemeProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ThemeProvider>
+  </React.StrictMode>,
 )

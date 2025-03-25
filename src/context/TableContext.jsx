@@ -6,7 +6,6 @@ export const TableContext = createContext();
 export const TableProvider = ({ children }) => {
   // Estado para las mesas
   const [tables, setTables] = useState([]);
-  const [specialTables, setSpecialTables] = useState([]);
   
   // Inicializar con 25 mesas estándar
   useEffect(() => {
@@ -22,30 +21,53 @@ export const TableProvider = ({ children }) => {
   }, []);
 
   // Añadir una mesa especial
-  const addSpecialTable = (capacity) => {
+  const addSpecialTable = (tableNumber, capacity) => {
+    // Validar parámetros
     if (capacity <= 0) {
       throw new Error('La capacidad debe ser mayor que cero');
     }
     
+    if (tableNumber <= 0) {
+      throw new Error('El número de mesa debe ser mayor que cero');
+    }
+    
+    // Verificar si ya existe una mesa con ese número
+    if (tables.some(table => table.number === tableNumber)) {
+      // La mesa ya existe
+      return false;
+    }
+    
     // Crear una nueva mesa especial
-    const newTableNumber = tables.length + 1;
     const newTable = {
       id: `special-${Date.now()}`,
-      number: newTableNumber,
+      number: tableNumber,
       type: 'special',
       capacity: capacity,
-      isSpecial: true,
-      chairs: capacity
+      isSpecial: true
     };
     
     // Añadir la nueva mesa al estado
     setTables(prevTables => [...prevTables, newTable]);
-    setSpecialTables(prevSpecialTables => [...prevSpecialTables, newTable]);
     
-    return newTableNumber;
+    return true;
   };
 
-  // Eliminar mesas (primero las especiales, luego las estándar)
+  // Eliminar mesas (por número de mesa)
+  const removeTable = (tableNumber) => {
+    // Verificar si la mesa existe
+    const tableExists = tables.some(table => table.number === tableNumber);
+    
+    if (!tableExists) {
+      throw new Error(`No existe una mesa con el número ${tableNumber}`);
+    }
+    
+    // Eliminar la mesa del estado
+    setTables(prevTables => prevTables.filter(table => table.number !== tableNumber));
+    
+    return true;
+  };
+
+  // Eliminar múltiples mesas (las últimas n mesas)
   const removeTables = (count) => {
     if (count <= 0) {
       throw new Error('El número de mesas a eliminar debe ser mayor que cero');
@@ -55,47 +77,17 @@ export const TableProvider = ({ children }) => {
       throw new Error(`No se pueden eliminar ${count} mesas. Solo hay ${tables.length} mesas disponibles.`);
     }
     
-    // Primero eliminamos mesas especiales si hay
-    let remainingToRemove = count;
-    let newTables = [...tables];
-    
-    if (specialTables.length > 0) {
-      const specialToRemove = Math.min(remainingToRemove, specialTables.length);
-      
-      if (specialToRemove > 0) {
-        // Filtrar las mesas especiales a conservar
-        const updatedSpecialTables = specialTables.slice(0, -specialToRemove);
-        setSpecialTables(updatedSpecialTables);
-        
-        // Actualizar el array de todas las mesas
-        newTables = newTables.filter(table => !table.isSpecial || updatedSpecialTables.some(st => st.id === table.id));
-        
-        remainingToRemove -= specialToRemove;
-      }
-    }
-    
-    // Si aún quedan mesas por eliminar, eliminamos mesas estándar desde el final
-    if (remainingToRemove > 0) {
-      const standardTables = newTables.filter(table => !table.isSpecial);
-      const standardToKeep = Math.max(0, standardTables.length - remainingToRemove);
-      
-      newTables = [
-        ...standardTables.slice(0, standardToKeep),
-        ...newTables.filter(table => table.isSpecial)
-      ];
-    }
-    
-    // Actualizar el estado de las mesas
-    setTables(newTables);
+    // Eliminar las últimas n mesas
+    setTables(prevTables => prevTables.slice(0, prevTables.length - count));
     
     return count;
   };
 
   return (
     <TableContext.Provider value={{ 
-      tables, 
-      specialTables,
+      tables,
       addSpecialTable,
+      removeTable,
       removeTables
     }}>
       {children}

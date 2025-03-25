@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom"
 import "./styles/navbar.css"
 import { MdDarkMode, MdOutlineDarkMode, MdMenu, MdClose } from "react-icons/md"
-import { useState } from "react"
+import { useState, useContext } from "react"
+import { ThemeContext } from "../context/ThemeContext"
 
-const Navbar = ({ setDarkMode, darkMode }) => {
+const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useContext(ThemeContext);
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -35,12 +37,12 @@ const Navbar = ({ setDarkMode, darkMode }) => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/addproducts" onClick={() => setIsMenuOpen(false)}>
+              <Link className="nav-link" to="/add-products" onClick={() => setIsMenuOpen(false)}>
                 Añadir Productos
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/addspecialtable" onClick={() => setIsMenuOpen(false)}>
+              <Link className="nav-link" to="/add-special-table" onClick={() => setIsMenuOpen(false)}>
                 Mesas Especiales
               </Link>
             </li>
@@ -49,10 +51,10 @@ const Navbar = ({ setDarkMode, darkMode }) => {
           <div className="navbar-actions">
             <button
               className="btn-darkmode"
-              onClick={() => setDarkMode(!darkMode)}
-              aria-label={darkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+              onClick={toggleDarkMode}
+              aria-label={isDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
-              {darkMode ? (
+              {isDarkMode ? (
                 <MdDarkMode color="var(--text-color)" size={24} />
               ) : (
                 <MdOutlineDarkMode color="var(--text-color)" size={24} />
