@@ -10,7 +10,7 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore"
-import { db } from "/firebaseConfig"
+import { db } from "./firebaseConfig"
 
 function NewMenuItems() {
   const [todos, setTodos] = useState([])
