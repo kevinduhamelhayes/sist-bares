@@ -6,6 +6,7 @@ import Footer from "./components/Footer"
 import Navbar from "./components/Navbar"
 import { Route, Routes } from "react-router-dom"
 import AddProducts from "./components/AddProducts"
+import ManageMenuItems from "./components/ManageMenuItems"
 
 function App() {
   const [darkMode, setDarkMode] = useState(false)
@@ -16,6 +17,7 @@ function App() {
         <Route exact path="/" element={<Body />} />
         <Route exact path="/addspecialtable" element={<AddSpecialTable />} />
         <Route exact path="/addproducts" element={<AddProducts />} />
+        <Route exact path="/menu" element={<ManageMenuItems />} />
       </Routes>
       <Footer />
     </div>
