@@ -18,11 +18,16 @@
   --text-light: #6c757d;
   --border-color: #ddd;
   --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --table-bg: #ddd;
+  --chair-bg: #aaa;
+  --chair-color: #333;
+  --modal-bg: rgba(0, 0, 0, 0.5);
+  --modal-content-bg: #fff;
 }
 
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f0f2f5;
+  background-color: var(--bg-color, #f0f2f5);
   color: var(--text-color);
   line-height: 1.6;
 }
@@ -38,6 +43,14 @@ body {
   --text-light: #6c757d;
   --bg-color: #f0f2f5;
   --item-bg: #ffffff;
+  --table-bg: #ddd;
+  --chair-bg: #aaa;
+  --chair-color: #333;
+  --modal-bg: rgba(0, 0, 0, 0.5);
+  --modal-content-bg: #fff;
+  --form-bg: #f8f9fa;
+  --form-input-bg: #fff;
+  --form-input-color: #333;
 }
 
 .dark-mode {
@@ -45,8 +58,34 @@ body {
   --text-light: #a0a5aa;
   --bg-color: #1a1a1a;
   --item-bg: #2d2d2d;
+  --table-bg: #3d3d3d;
+  --chair-bg: #555;
+  --chair-color: #e4e6e8;
+  --modal-bg: rgba(0, 0, 0, 0.7);
+  --modal-content-bg: #2d2d2d;
+  --form-bg: #333;
+  --form-input-bg: #444;
+  --form-input-color: #e4e6e8;
   background-color: var(--bg-color);
   color: var(--text-color);
+}
+
+/* Estilos específicos para el modo oscuro */
+.dark-mode .navbar {
+  background-color: #222;
+  border-color: var(--primary-color);
+}
+
+.dark-mode .table {
+  background-color: var(--table-bg);
+  color: var(--text-color);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .chair {
+  background-color: var(--chair-bg);
+  color: var(--chair-color);
+  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
 }
 
 .dark-mode .menu-manager,
@@ -69,9 +108,42 @@ body {
 .dark-mode .form-group input,
 .dark-mode .form-group select,
 .dark-mode .form-group textarea {
-  background-color: #333;
-  color: #e4e6e8;
+  background-color: var(--form-input-bg);
+  color: var(--form-input-color);
   border-color: #444;
+}
+
+.dark-mode .order-modal-content {
+  background-color: var(--modal-content-bg);
+  color: var(--text-color);
+}
+
+.dark-mode .container-add-special-table {
+  background-color: var(--bg-color);
+}
+
+.dark-mode .form-table {
+  background-color: var(--item-bg);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .input-add-tables {
+  background-color: var(--form-input-bg);
+  color: var(--form-input-color);
+  border-color: #444;
+}
+
+.dark-mode .label-add-tables {
+  color: var(--text-color);
+}
+
+.dark-mode .btn-add-tables {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.dark-mode .btn-add-tables:hover {
+  background-color: var(--primary-dark);
 }
 
 /* Estilos responsivos generales */
