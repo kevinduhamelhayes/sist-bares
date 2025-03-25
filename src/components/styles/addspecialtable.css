@@ -1,34 +1,69 @@
 .container-add-special-table {
+  padding-top: 100px;
+  min-height: calc(100vh - 60px);
   display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: var(--gray);
+  align-items: flex-start;
+  padding-bottom: 2rem;
+}
+
+.special-table-container {
+  width: 100%;
+  max-width: 900px;
+  padding: 1rem;
+}
+
+.special-table-title {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--text-color);
+  font-size: 2rem;
+}
+
+.forms-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
 }
 
 .form-table {
-  width: 400px;
-  padding: 40px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  background-color: var(--light-color);
+  padding: 2rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-table h3 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+  font-size: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .label-add-tables {
-  display: block;
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-  color: var(--dark-color);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-color);
 }
 
 .input-add-tables {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   font-size: 1rem;
   transition: border-color 0.3s;
+  background-color: var(--form-input-bg, #fff);
+  color: var(--form-input-color, #333);
 }
 
 .input-add-tables:focus {
@@ -36,19 +71,85 @@
   outline: none;
 }
 
-.btn-add-tables {
-  display: block;
-  width: 100%;
-  padding: 10px 15px;
-  background-color: var(--primary-color);
+.btn-add-tables, .btn-remove-tables {
+  padding: 0.75rem;
   border: none;
   border-radius: 5px;
-  color: #ffffff;
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-add-tables {
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .btn-add-tables:hover {
-  background-color: orange;
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.btn-remove-tables {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.btn-remove-tables:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}
+
+.message {
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+  .forms-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .special-table-title {
+    font-size: 1.5rem;
+  }
+  
+  .form-table {
+    padding: 1.5rem;
+  }
+  
+  .form-table h3 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container-add-special-table {
+    padding-top: 80px;
+  }
+  
+  .form-table {
+    padding: 1rem;
+  }
+  
+  .input-add-tables, .btn-add-tables, .btn-remove-tables {
+    padding: 0.6rem;
+  }
 }
