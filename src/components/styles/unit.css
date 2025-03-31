@@ -7,6 +7,8 @@
   justify-content: center;
   align-items: center;
   transition: transform 0.3s ease;
+  /* BORDE PARA DEBUGGING ELIMINADO */
+  /* border: 5px solid red !important; */
 }
 
 .unidad:hover {
@@ -78,49 +80,49 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Posiciones específicas para las 4 sillas */
+/* Nuevas posiciones para 2 arriba y 2 abajo */
+
+/* Silla 1: Arriba-Izquierda */
 .chair.top {
-  top: 20px;
-  left: 50%;
+  top: 20px; 
+  left: 30%; /* Ajustar porcentaje para separación */
   transform: translateX(-50%);
 }
 
+/* Silla 2: Arriba-Derecha */
 .chair.right {
-  top: 50%;
-  right: 20px;
-  transform: translateY(-50%);
+  top: 20px;
+  left: 70%; /* Ajustar porcentaje para separación */
+  transform: translateX(-50%);
 }
 
+/* Silla 3: Abajo-Izquierda */
 .chair.bottom {
   bottom: 20px;
-  left: 50%;
+  left: 30%; /* Ajustar porcentaje para separación */
   transform: translateX(-50%);
 }
 
+/* Silla 4: Abajo-Derecha */
 .chair.left {
-  top: 50%;
-  left: 20px;
-  transform: translateY(-50%);
+  bottom: 20px;
+  left: 70%; /* Ajustar porcentaje para separación */
+  transform: translateX(-50%);
 }
 
+/* Ajustar :hover para las nuevas posiciones */
 .chair:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  /* El escalado puede afectar la posición, aplicar con cuidado si es necesario */
+  /* transform: scale(1.1); NO APLICAR GLOBALMENTE */
 }
 
-.chair.top:hover {
-  transform: translateX(-50%) scale(1.1);
-}
-
-.chair.right:hover {
-  transform: translateY(-50%) scale(1.1);
-}
-
-.chair.bottom:hover {
-  transform: translateX(-50%) scale(1.1);
-}
-
+/* Aplicar escalado específico si se desea, asegurando que no rompa la posición */
+.chair.top:hover,
+.chair.right:hover,
+.chair.bottom:hover,
 .chair.left:hover {
-  transform: translateY(-50%) scale(1.1);
+  transform: translateX(-50%) scale(1.1);
 }
 
 .chair.occupied {
