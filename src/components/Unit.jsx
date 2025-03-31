@@ -67,6 +67,16 @@ const Unit = ({ tableNumber }) => {
     }, 100);
   }, [tableNumber, chairStates]);
 
+  // useEffect para actualizar el color de la mesa basado en el estado de las sillas
+  useEffect(() => {
+    const isAnyChairOccupied = chairStates.some(state => state === 'male' || state === 'female');
+    if (isAnyChairOccupied) {
+      setTableColor("var(--primary-color)"); // Color activo
+    } else {
+      setTableColor("#ddd"); // Color inactivo
+    }
+  }, [chairStates]); // Se ejecuta cada vez que cambie el estado de una silla
+
   const handleTableClick = () => {
     // Si la mesa está inactiva, la activamos
     if (tableColor === chairStates.empty) {
@@ -89,28 +99,22 @@ const Unit = ({ tableNumber }) => {
 
       switch (newStates[index]) {
         case 'empty':
-          nextState = 'male'; // Vacío -> Hombre (Azul)
-          // Activar mesa si no lo está ya
-          // setTableColor("var(--primary-color)"); // Decidir si esto es necesario
+          nextState = 'male';
+          // Ya no es necesario cambiar el color de la mesa aquí,
+          // el useEffect se encargará.
+          // setTableColor("var(--primary-color)"); // <-- Eliminado/Comentado
           break;
         case 'male':
-          nextState = 'female'; // Hombre (Azul) -> Mujer (Rosa)
+          nextState = 'female';
           break;
         case 'female':
-          nextState = 'empty'; // Mujer (Rosa) -> Vacío (Gris)
-          // Eliminar pedidos asociados a esta silla si vuelve a estar vacía
+          nextState = 'empty';
           setOrders(orders.filter(order => order.chairIndex !== index));
           break;
         default:
           nextState = 'empty';
       }
       newStates[index] = nextState;
-
-      // Lógica para desactivar mesa si todas las sillas están vacías
-      // if (newStates.every((state) => state === 'empty')) {
-      //   setTableColor(stateColors.empty); // O color base de mesa
-      // }
-
       return newStates;
     });
   }
@@ -174,11 +178,11 @@ const Unit = ({ tableNumber }) => {
         );
       })}
       
-      {/* Mesa */}
+      {/* Mesa - Ahora usa el estado tableColor que se actualiza con useEffect */}
       <div
         className="table"
-        // style={{ backgroundColor: tableColor }} // El color de la mesa podría manejarse diferente ahora
-        onClick={handleTableClick}
+        style={{ backgroundColor: tableColor }} // Aplicar el color de fondo dinámico
+        onClick={handleTableClick} // handleTableClick podría necesitar revisión si queremos otro comportamiento
       >
         <div className="table-number">Mesa {tableNumber}</div>
         {orders.length > 0 && (

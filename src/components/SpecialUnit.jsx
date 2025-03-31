@@ -38,6 +38,16 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
     };
   }, [tableNumber]);
 
+  // useEffect para actualizar el color de la mesa basado en el estado de las sillas
+  useEffect(() => {
+    const isAnyChairOccupied = chairStates.some(state => state === 'male' || state === 'female');
+    if (isAnyChairOccupied) {
+      setTableColor("var(--primary-color)"); // Color activo
+    } else {
+      setTableColor("#ddd"); // Color inactivo
+    }
+  }, [chairStates]);
+
   // Mapeo de estados a colores (usando variables CSS)
   const stateColors = {
     empty: 'var(--chair-bg-empty)',
@@ -139,12 +149,7 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
       {/* Mesa (va primero en el DOM para z-index más bajo) */}
       <div
         className="table special-table"
-        style={{ 
-          backgroundColor: tableColor,
-          // Ajustar tamaño dinámicamente o dejarlo al CSS
-          // width: chairCount <= 8 ? '180px' : '220px',
-          // height: chairCount <= 8 ? '120px' : '150px'
-        }}
+        style={{ backgroundColor: tableColor }}
         onClick={handleTableClick}
       >
         <div>
