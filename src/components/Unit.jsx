@@ -3,16 +3,25 @@ import "./styles/body.css"
 import "./styles/unit.css"
 // Importar Firebase y Firestore
 import { db } from "./firebaseConfig";
-import { collection, query, onSnapshot } from "firebase/firestore";
+import { collection, query, onSnapshot, doc, setDoc, getDoc } from "firebase/firestore";
 
 const Unit = ({ tableNumber }) => {
+  const docId = `table-${tableNumber}`; // ID del documento en Firestore
+  const tableStateRef = doc(db, "tableStates", docId); // Referencia al documento
+
   // Log para debugging
   useEffect(() => {
     console.log(`Rendering Unit for table ${tableNumber}`);
   }, [tableNumber]);
 
+  // Estados locales (se inicializarán desde Firestore o por defecto)
   const [tableColor, setTableColor] = useState("#ddd")
   const [chairStates, setChairStates] = useState(Array(4).fill('empty'));
+  const [orders, setOrders] = useState([]);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [currentChairIndex, setCurrentChairIndex] = useState(null);
+  const [menuItems, setMenuItems] = useState([]);
+  const [isLoadingState, setIsLoadingState] = useState(true); // Estado de carga inicial
   
   // Mapeo de estados a colores (usando variables CSS)
   const stateColors = {
@@ -21,12 +30,76 @@ const Unit = ({ tableNumber }) => {
     female: 'var(--chair-bg-female)',
   };
 
-  const [showOrderModal, setShowOrderModal] = useState(false)
-  const [orders, setOrders] = useState([])
-  const [currentChairIndex, setCurrentChairIndex] = useState(null)
+  // ---- useEffect para LEER/ESCUCHAR el estado de la mesa desde Firestore ----
+  useEffect(() => {
+    console.log(`Unit ${tableNumber}: Suscribiéndose al estado de la mesa (ID: ${docId})...`);
+    setIsLoadingState(true);
 
-  // Estado para los ítems del menú leídos de Firebase
-  const [menuItems, setMenuItems] = useState([]);
+    const unsubscribe = onSnapshot(tableStateRef, (docSnap) => {
+      if (docSnap.exists()) {
+        console.log(`Unit ${tableNumber}: Datos recibidos de Firestore:`, docSnap.data());
+        const data = docSnap.data();
+        // Validar y establecer estados locales desde Firestore
+        if (data.chairStates && Array.isArray(data.chairStates) && data.chairStates.length === 4) {
+          setChairStates(data.chairStates);
+        } else {
+           console.warn(`Unit ${tableNumber}: chairStates inválidos o faltantes en Firestore.`);
+           // Opcional: podrías querer inicializarlo en Firestore aquí si no existe
+        }
+        if (data.orders && Array.isArray(data.orders)) {
+          setOrders(data.orders);
+        } else {
+           console.warn(`Unit ${tableNumber}: orders inválidos o faltantes en Firestore.`);
+        }
+        // Podrías cargar tableColor también si lo guardas
+
+      } else {
+        // El documento no existe (primera vez que se interactúa con la mesa?)
+        console.log(`Unit ${tableNumber}: No existe documento de estado en Firestore. Usando estado inicial.`);
+        // Opcional: Crear el documento inicial aquí si se desea
+        // setDoc(tableStateRef, { tableNumber, chairStates: Array(4).fill('empty'), orders: [] });
+      }
+      setIsLoadingState(false);
+    }, (error) => {
+      console.error(`Unit ${tableNumber}: Error al escuchar estado de Firestore: `, error);
+      setIsLoadingState(false); // Dejar de cargar incluso si hay error
+    });
+
+    // Limpiar suscripción al desmontar
+    return () => {
+      console.log(`Unit ${tableNumber}: Desuscribiéndose del estado de la mesa.`);
+      unsubscribe();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tableNumber]); // Dependencia solo de tableNumber para obtener la ref correcta
+
+  // ---- useEffect para GUARDAR el estado de la mesa en Firestore ----
+  useEffect(() => {
+    // No guardar durante la carga inicial o si los estados no han cambiado realmente
+    if (isLoadingState) {
+      return;
+    }
+
+    const saveData = async () => {
+      console.log(`Unit ${tableNumber}: Guardando estado en Firestore...`, { chairStates, orders });
+      try {
+        await setDoc(tableStateRef, {
+          tableNumber: tableNumber,
+          chairStates: chairStates, // Guardar el array completo
+          orders: orders // Guardar el array completo
+          // podrías añadir tableColor si quieres persistirlo
+        }, { merge: true }); // merge: true crea el doc si no existe, o actualiza campos
+        console.log(`Unit ${tableNumber}: Estado guardado con éxito.`);
+      } catch (error) {
+        console.error(`Unit ${tableNumber}: Error al guardar estado en Firestore: `, error);
+      }
+    };
+
+    // Llamar a saveData DEBOUNCED sería ideal si hay muchos cambios rápidos,
+    // pero por ahora lo llamamos directamente.
+    saveData();
+
+  }, [chairStates, orders, tableNumber, tableStateRef, isLoadingState]); // Ejecutar si cambia el estado local
 
   // useEffect para leer el menú de Firebase
   useEffect(() => {
@@ -109,7 +182,7 @@ const Unit = ({ tableNumber }) => {
           break;
         case 'female':
           nextState = 'empty';
-          setOrders(orders.filter(order => order.chairIndex !== index));
+          setOrders(prevOrders => prevOrders.filter(order => order.chairIndex !== index));
           break;
         default:
           nextState = 'empty';
@@ -149,6 +222,11 @@ const Unit = ({ tableNumber }) => {
   // Función para obtener los pedidos por silla
   const getOrdersByChair = (chairIndex) => {
     return orders.filter(order => order.chairIndex === chairIndex)
+  }
+
+  // ---- Renderizado ----
+  if (isLoadingState) {
+    return <div className="unidad-loading">Cargando mesa {tableNumber}...</div>; // Placeholder de carga
   }
 
   return (

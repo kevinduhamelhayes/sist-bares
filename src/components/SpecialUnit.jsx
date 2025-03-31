@@ -4,17 +4,20 @@ import "./styles/unit.css"
 import "./styles/specialUnit.css"
 // Importar Firebase y Firestore
 import { db } from "./firebaseConfig";
-import { collection, query, onSnapshot } from "firebase/firestore";
+import { collection, query, onSnapshot, doc, setDoc, getDoc } from "firebase/firestore";
 
 const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
+  const docId = `table-${tableNumber}`; // ID del documento en Firestore
+  const tableStateRef = doc(db, "tableStates", docId); // Referencia al documento
+
+  // Estados locales
   const [tableColor, setTableColor] = useState("#ddd")
   const [chairStates, setChairStates] = useState(Array(chairCount).fill('empty'))
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [orders, setOrders] = useState([])
   const [currentChairIndex, setCurrentChairIndex] = useState(null)
-
-  // Estado para los ítems del menú leídos de Firebase
-  const [menuItems, setMenuItems] = useState([]);
+  const [menuItems, setMenuItems] = useState([])
+  const [isLoadingState, setIsLoadingState] = useState(true)
 
   // useEffect para leer el menú de Firebase
   useEffect(() => {
@@ -55,6 +58,63 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
     female: 'var(--chair-bg-female)',
   };
 
+  // ---- useEffect para LEER/ESCUCHAR estado ----
+  useEffect(() => {
+    console.log(`SpecialUnit ${tableNumber}: Suscribiéndose al estado...`);
+    setIsLoadingState(true);
+    const unsubscribe = onSnapshot(tableStateRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        console.log(`SpecialUnit ${tableNumber}: Datos recibidos:`, data);
+        if (data.chairStates && Array.isArray(data.chairStates) && data.chairStates.length === chairCount) {
+          setChairStates(data.chairStates);
+        } else {
+           console.warn(`SpecialUnit ${tableNumber}: chairStates inválidos.`);
+           // Podría inicializar/corregir el array aquí si es necesario
+           setChairStates(Array(chairCount).fill('empty')); // Volver a default si hay error
+        }
+        if (data.orders && Array.isArray(data.orders)) {
+          setOrders(data.orders);
+        } else {
+           console.warn(`SpecialUnit ${tableNumber}: orders inválidos.`);
+        }
+      } else {
+        console.log(`SpecialUnit ${tableNumber}: No existe documento.`);
+        // Opcional: Crear documento inicial
+        // setDoc(tableStateRef, { tableNumber, chairStates: Array(chairCount).fill('empty'), orders: [] });
+      }
+      setIsLoadingState(false);
+    }, (error) => {
+      console.error(`SpecialUnit ${tableNumber}: Error Firestore: `, error);
+      setIsLoadingState(false);
+    });
+    return () => {
+      console.log(`SpecialUnit ${tableNumber}: Desuscribiéndose.`);
+      unsubscribe();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tableNumber, chairCount]); // Añadir chairCount como dependencia por si cambia
+
+  // ---- useEffect para GUARDAR estado ----
+  useEffect(() => {
+    if (isLoadingState) return;
+    const saveData = async () => {
+      console.log(`SpecialUnit ${tableNumber}: Guardando estado...`);
+      try {
+        await setDoc(tableStateRef, {
+          tableNumber: tableNumber,
+          chairCount: chairCount, // Guardar chairCount por si cambia
+          chairStates: chairStates,
+          orders: orders
+        }, { merge: true });
+        console.log(`SpecialUnit ${tableNumber}: Estado guardado.`);
+      } catch (error) {
+        console.error(`SpecialUnit ${tableNumber}: Error al guardar: `, error);
+      }
+    };
+    saveData();
+  }, [chairStates, orders, tableNumber, chairCount, tableStateRef, isLoadingState]);
+
   const handleTableClick = () => {
     // Si la mesa está inactiva, la activamos
     if (tableColor === stateColors.empty) {
@@ -84,7 +144,7 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
           break;
         case 'female':
           nextState = 'empty'; 
-          setOrders(orders.filter(order => order.chairIndex !== index));
+          setOrders(prevOrders => prevOrders.filter(order => order.chairIndex !== index));
           break;
         default:
           nextState = 'empty';
@@ -140,6 +200,10 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
       transform: 'translate(-50%, -50%)',
     };
   };
+
+  if (isLoadingState) {
+    return <div className="unidad-loading">Cargando mesa {tableNumber}...</div>;
+  }
 
   return (
     <div className="unidad special-unit" data-table-number={tableNumber}>
