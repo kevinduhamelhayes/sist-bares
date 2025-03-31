@@ -1,7 +1,8 @@
 .special-unit {
   position: relative;
-  min-height: 350px;
-  min-width: 350px;
+  min-width: 300px;
+  min-height: 300px;
+  padding: 40px;
   margin: 20px;
   display: flex;
   justify-content: center;
@@ -32,7 +33,15 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   padding: 15px;
-  z-index: 3;
+  z-index: 1;
+  background-color: #ddd;
+  color: #333;
+}
+
+.dark-mode .special-table {
+  background-color: #444;
+  color: #e4e6e8;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .special-table:hover {
@@ -61,7 +70,7 @@
 }
 
 .special-chair {
-  position: absolute !important;
+  position: absolute;
   z-index: 2;
   width: 40px;
   height: 40px;
@@ -71,8 +80,16 @@
   align-items: center;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
-  /* Las posiciones se calculan dinámicamente */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform-origin: center center;
+  background-color: #aaa;
+  color: #333;
+}
+
+.dark-mode .special-chair {
+  background-color: #555;
+  color: #e4e6e8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .special-chair:hover {
@@ -109,35 +126,27 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .special-unit {
-    min-height: 300px;
-    min-width: 300px;
+    min-width: 250px;
+    min-height: 250px;
+    padding: 30px;
   }
   
   .special-chair {
     width: 35px;
     height: 35px;
   }
-  
-  .special-table {
-    width: 150px !important;
-    height: 100px !important;
-  }
 }
 
 @media (max-width: 576px) {
   .special-unit {
-    min-height: 250px;
-    min-width: 250px;
+    min-width: 200px;
+    min-height: 200px;
+    padding: 25px;
   }
   
   .special-chair {
     width: 30px;
     height: 30px;
-  }
-  
-  .special-table {
-    width: 120px !important;
-    height: 80px !important;
   }
   
   .special-table .table-number {

@@ -115,27 +115,56 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
 
   // Calculamos el ángulo para cada silla alrededor de la mesa especial
   const getChairPosition = (index) => {
-    const angle = (360 / chairCount) * index;
-    const radians = (angle * Math.PI) / 180;
+    const angleDegrees = (360 / chairCount) * index - 90; // Empezar desde arriba (-90 grados)
+    const angleRadians = (angleDegrees * Math.PI) / 180;
     
-    // Para mesas de 5-8 personas
-    const radius = chairCount <= 8 ? 110 : 150;
+    // Radio para posicionar las sillas (ajustar según tamaño de mesa/silla)
+    // Usaremos % relativo al contenedor .special-unit
+    const radiusPercent = 45; // 45% del radio del contenedor .special-unit
     
-    // Cálculo de la posición
-    const left = 50 + Math.cos(radians) * radius;
-    const top = 50 + Math.sin(radians) * radius;
+    // Cálculo de la posición relativa al centro (50%, 50%)
+    // Usamos translate para centrar la silla en la posición calculada
+    const xPos = 50 + radiusPercent * Math.cos(angleRadians);
+    const yPos = 50 + radiusPercent * Math.sin(angleRadians);
     
-    return { left: `${left}%`, top: `${top}%` };
+    // Devolvemos estilo para left, top y transform para centrar la silla
+    return {
+      left: `${xPos}%`,
+      top: `${yPos}%`,
+      transform: 'translate(-50%, -50%)', // Centra la silla
+    };
   };
 
   return (
-    <div className="unidad special-unit">
+    <div className="unidad special-unit" data-table-number={tableNumber}>
       {/* Etiqueta de mesa especial */}
       <div className="special-label">Especial</div>
       
+      {/* Mesa (va primero en el DOM para z-index más bajo) */}
+      <div
+        className="table special-table"
+        style={{ 
+          backgroundColor: tableColor,
+          // Ajustar tamaño dinámicamente o dejarlo al CSS
+          // width: chairCount <= 8 ? '180px' : '220px',
+          // height: chairCount <= 8 ? '120px' : '150px'
+        }}
+        onClick={handleTableClick}
+      >
+        <div>
+          <div className="table-number">Mesa {tableNumber}</div>
+          <div className="table-capacity">{chairCount} personas</div>
+          {orders.length > 0 && (
+            <div className="table-orders">
+              Pedidos: {orders.length} (${getTotalAmount()})
+            </div>
+          )}
+        </div>
+      </div>
+      
       {/* Sillas dinámicas alrededor de la mesa */}
       {chairColors.map((color, index) => {
-        const position = getChairPosition(index);
+        const positionStyle = getChairPosition(index);
         
         return (
           <div
@@ -143,8 +172,7 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
             className={`chair special-chair ${color !== chairStates.empty ? 'occupied' : ''}`}
             style={{ 
               backgroundColor: color,
-              left: position.left,
-              top: position.top,
+              ...positionStyle, // Aplicar left, top y transform
             }}
             onClick={() => handleChairClick(index)}
             onContextMenu={(e) => {
@@ -159,26 +187,6 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
           </div>
         );
       })}
-      
-      <div
-        className="table special-table"
-        style={{ 
-          backgroundColor: tableColor,
-          width: chairCount <= 8 ? '180px' : '220px',
-          height: chairCount <= 8 ? '120px' : '150px'
-        }}
-        onClick={handleTableClick}
-      >
-        <div>
-          <div className="table-number">Mesa {tableNumber}</div>
-          <div className="table-capacity">{chairCount} personas</div>
-          {orders.length > 0 && (
-            <div className="table-orders">
-              Pedidos: {orders.length} (${getTotalAmount()})
-            </div>
-          )}
-        </div>
-      </div>
 
       {showOrderModal && (
         <div className="order-modal">
