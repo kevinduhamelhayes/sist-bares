@@ -1,3 +1,12 @@
+:root {
+  /* ... otras variables ... */
+  --chair-bg-empty: #aaa;
+  --chair-bg-male: #64b5f6; /* Azul claro */
+  --chair-bg-female: #f06292; /* Rosa */
+  --chair-color-occupied: #fff; /* Texto blanco para sillas ocupadas */
+  /* ... */
+}
+
 .unidad {
   position: relative;
   width: 250px;
@@ -70,61 +79,37 @@
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
-  background-color: #aaa;
+  background-color: var(--chair-bg-empty);
   color: #333;
 }
 
 .dark-mode .chair {
   background-color: #555;
   color: #e4e6e8;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Nuevas posiciones para 2 arriba y 2 abajo */
-
-/* Silla 1: Arriba-Izquierda */
-.chair.top {
-  top: 10px;
-  left: 30%;
-  transform: translateX(-50%);
+/* Estilos para sillas ocupadas por género */
+.chair.male {
+  background-color: var(--chair-bg-male);
+  color: var(--chair-color-occupied);
 }
 
-/* Silla 2: Arriba-Derecha */
-.chair.right {
-  top: 10px;
-  left: 70%;
-  transform: translateX(-50%);
+.chair.female {
+  background-color: var(--chair-bg-female);
+  color: var(--chair-color-occupied);
 }
 
-/* Silla 3: Abajo-Izquierda */
-.chair.bottom {
-  bottom: 10px;
-  left: 30%;
-  transform: translateX(-50%);
+.dark-mode .chair.male {
+  /* Podríamos oscurecer ligeramente el azul */
+  background-color: #2196f3; 
 }
 
-/* Silla 4: Abajo-Derecha */
-.chair.left {
-  bottom: 10px;
-  left: 70%;
-  transform: translateX(-50%);
+.dark-mode .chair.female {
+  /* Podríamos oscurecer ligeramente el rosa */
+  background-color: #ec407a;
 }
 
-/* Ajustar :hover para las nuevas posiciones */
-.chair:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  /* El escalado puede afectar la posición, aplicar con cuidado si es necesario */
-  /* transform: scale(1.1); NO APLICAR GLOBALMENTE */
-}
-
-/* Aplicar escalado específico si se desea, asegurando que no rompa la posición */
-.chair.top:hover,
-.chair.right:hover,
-.chair.bottom:hover,
-.chair.left:hover {
-  transform: translateX(-50%) scale(1.1);
-}
-
+/* La clase .occupied ya no se usará directamente para color, sino para indicar estado */
 .chair.occupied {
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.2);
 }

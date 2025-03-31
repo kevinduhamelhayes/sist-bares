@@ -9,21 +9,22 @@ const Unit = ({ tableNumber }) => {
   }, [tableNumber]);
 
   const [tableColor, setTableColor] = useState("#ddd")
-  const [chairColors, setChairColors] = useState(Array(4).fill("#aaa"))
+  const [chairStates, setChairStates] = useState(Array(4).fill('empty'));
+  
+  // Mapeo de estados a colores (usando variables CSS)
+  const stateColors = {
+    empty: 'var(--chair-bg-empty)',
+    male: 'var(--chair-bg-male)',
+    female: 'var(--chair-bg-female)',
+  };
+
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [orders, setOrders] = useState([])
   const [currentChairIndex, setCurrentChairIndex] = useState(null)
 
-  // Colores para los estados de las sillas
-  const chairStates = {
-    empty: "#aaa",     // gris (vacía)
-    occupied: "cyan",  // celeste (cliente sentado)
-    ordered: "pink"    // rosa (pedido realizado)
-  }
-
   // Se asegura que todas las sillas sean visibles al montar el componente
   useEffect(() => {
-    console.log(`Chair colors for table ${tableNumber}:`, chairColors);
+    console.log(`Chair states for table ${tableNumber}:`, chairStates);
     
     // Verificar que las sillas están en la posición correcta usando el id en lugar del índice
     setTimeout(() => {
@@ -36,7 +37,7 @@ const Unit = ({ tableNumber }) => {
         console.log(`Could not find unidad element for table ${tableNumber}`);
       }
     }, 100);
-  }, [tableNumber, chairColors]);
+  }, [tableNumber, chairStates]);
 
   const handleTableClick = () => {
     // Si la mesa está inactiva, la activamos
@@ -44,8 +45,8 @@ const Unit = ({ tableNumber }) => {
       setTableColor("var(--primary-color)")
     } else {
       // Solo permite cerrar la mesa si todas las sillas están vacías
-      if (chairColors.every((color) => color === chairStates.empty)) {
-        setTableColor(chairStates.empty)
+      if (chairStates.every((state) => state === 'empty')) {
+        setTableColor(stateColors.empty)
         setOrders([])
       } else {
         alert("No se puede cerrar la mesa si hay clientes sentados")
@@ -54,76 +55,60 @@ const Unit = ({ tableNumber }) => {
   }
 
   const handleChairClick = (index) => {
-    setChairColors((prevColors) => {
-      const newColors = [...prevColors]
-      
-      switch (newColors[index]) {
-        case chairStates.empty: // Si está vacía
-          // Cambiar a celeste (ocupada)
-          newColors[index] = chairStates.occupied
-          setTableColor("var(--primary-color)")
-          break
-          
-        case chairStates.occupied: // Si está ocupada (celeste)
-          // Cambiar a rosa (con pedido)
-          newColors[index] = chairStates.ordered
-          setCurrentChairIndex(index)
-          setShowOrderModal(true)
-          break
-          
-        case chairStates.ordered: // Si ya tiene pedido (rosa)
-          // Volver a vacía (gris)
-          newColors[index] = chairStates.empty
-          // Eliminar pedidos asociados a esta silla
-          setOrders(orders.filter(order => order.chairIndex !== index))
-          break
-          
+    setChairStates((prevStates) => {
+      const newStates = [...prevStates];
+      let nextState = 'empty';
+
+      switch (newStates[index]) {
+        case 'empty':
+          nextState = 'male'; // Vacío -> Hombre (Azul)
+          // Activar mesa si no lo está ya
+          // setTableColor("var(--primary-color)"); // Decidir si esto es necesario
+          break;
+        case 'male':
+          nextState = 'female'; // Hombre (Azul) -> Mujer (Rosa)
+          break;
+        case 'female':
+          nextState = 'empty'; // Mujer (Rosa) -> Vacío (Gris)
+          // Eliminar pedidos asociados a esta silla si vuelve a estar vacía
+          setOrders(orders.filter(order => order.chairIndex !== index));
+          break;
         default:
-          newColors[index] = chairStates.empty
+          nextState = 'empty';
       }
-      
-      // Si todas las sillas están vacías, volver la mesa a inactiva
-      if (newColors.every((color) => color === chairStates.empty)) {
-        setTableColor(chairStates.empty)
-      }
-      
-      return newColors
-    })
+      newStates[index] = nextState;
+
+      // Lógica para desactivar mesa si todas las sillas están vacías
+      // if (newStates.every((state) => state === 'empty')) {
+      //   setTableColor(stateColors.empty); // O color base de mesa
+      // }
+
+      return newStates;
+    });
   }
 
-  // Función para añadir pedido desde cualquier silla ocupada
+  // Función para añadir pedido (ahora verifica 'male' o 'female')
   const handleAddOrderToChair = (index) => {
-    // Solo permitimos agregar pedidos a sillas ocupadas (celeste o rosa)
-    if (chairColors[index] === chairStates.empty) {
-      alert("No puedes añadir productos a una silla vacía")
-      return
+    if (chairStates[index] === 'empty') {
+      alert("No puedes añadir productos a una silla vacía.");
+      return;
     }
-    
-    setCurrentChairIndex(index)
-    setShowOrderModal(true)
-  }
+    // Abrir modal independientemente de si es hombre o mujer
+    setCurrentChairIndex(index);
+    setShowOrderModal(true);
+  };
 
   const handleAddOrder = (item) => {
     if (currentChairIndex !== null) {
-      // Si la silla no está marcada como pedido (rosa), la marcamos
-      if (chairColors[currentChairIndex] === chairStates.occupied) {
-        setChairColors(prevColors => {
-          const newColors = [...prevColors]
-          newColors[currentChairIndex] = chairStates.ordered
-          return newColors
-        })
-      }
-      
       // Añadimos el pedido a la lista
       setOrders([...orders, {
         item,
         chairIndex: currentChairIndex,
         timestamp: new Date().toISOString()
-      }])
-      
-      setShowOrderModal(false)
+      }]);
+      setShowOrderModal(false);
     }
-  }
+  };
 
   const getTotalAmount = () => {
     return orders.reduce((total, order) => total + (order.item.price || 0), 0).toFixed(2)
@@ -136,71 +121,35 @@ const Unit = ({ tableNumber }) => {
 
   return (
     <div className="unidad" data-table-number={tableNumber}>
-      {/* Sillas posicionadas alrededor de la mesa */}
-      <div
-        className={`chair top ${chairColors[0] !== chairStates.empty ? 'occupied' : ''}`}
-        style={{ backgroundColor: chairColors[0] }}
-        onClick={() => handleChairClick(0)}
-        onContextMenu={(e) => {
-          e.preventDefault()
-          handleAddOrderToChair(0)
-        }}
-      >
-        <span className="chair-number">1</span>
-        {getOrdersByChair(0).length > 0 && (
-          <span className="chair-orders">{getOrdersByChair(0).length}</span>
-        )}
-      </div>
+      {[0, 1, 2, 3].map((index) => {
+        const state = chairStates[index];
+        const color = stateColors[state];
+        const positionClass = ['top', 'right', 'bottom', 'left'][index]; // Mapeo simple de índice a clase
+
+        return (
+          <div
+            key={index}
+            // Aplicar clase 'male' o 'female' para CSS, y 'occupied' si no está 'empty'
+            className={`chair ${positionClass} ${state !== 'empty' ? 'occupied ' + state : ''}`}
+            style={{ backgroundColor: color }} // El color se aplica directamente, pero las clases ayudan
+            onClick={() => handleChairClick(index)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              handleAddOrderToChair(index);
+            }}
+          >
+            <span className="chair-number">{index + 1}</span>
+            {getOrdersByChair(index).length > 0 && (
+              <span className="chair-orders">{getOrdersByChair(index).length}</span>
+            )}
+          </div>
+        );
+      })}
       
-      <div
-        className={`chair right ${chairColors[1] !== chairStates.empty ? 'occupied' : ''}`}
-        style={{ backgroundColor: chairColors[1] }}
-        onClick={() => handleChairClick(1)}
-        onContextMenu={(e) => {
-          e.preventDefault()
-          handleAddOrderToChair(1)
-        }}
-      >
-        <span className="chair-number">2</span>
-        {getOrdersByChair(1).length > 0 && (
-          <span className="chair-orders">{getOrdersByChair(1).length}</span>
-        )}
-      </div>
-      
-      <div
-        className={`chair bottom ${chairColors[2] !== chairStates.empty ? 'occupied' : ''}`}
-        style={{ backgroundColor: chairColors[2] }}
-        onClick={() => handleChairClick(2)}
-        onContextMenu={(e) => {
-          e.preventDefault()
-          handleAddOrderToChair(2)
-        }}
-      >
-        <span className="chair-number">3</span>
-        {getOrdersByChair(2).length > 0 && (
-          <span className="chair-orders">{getOrdersByChair(2).length}</span>
-        )}
-      </div>
-      
-      <div
-        className={`chair left ${chairColors[3] !== chairStates.empty ? 'occupied' : ''}`}
-        style={{ backgroundColor: chairColors[3] }}
-        onClick={() => handleChairClick(3)}
-        onContextMenu={(e) => {
-          e.preventDefault()
-          handleAddOrderToChair(3)
-        }}
-      >
-        <span className="chair-number">4</span>
-        {getOrdersByChair(3).length > 0 && (
-          <span className="chair-orders">{getOrdersByChair(3).length}</span>
-        )}
-      </div>
-      
-      {/* Mesa con click para activar/desactivar */}
+      {/* Mesa */}
       <div
         className="table"
-        style={{ backgroundColor: tableColor }}
+        // style={{ backgroundColor: tableColor }} // El color de la mesa podría manejarse diferente ahora
         onClick={handleTableClick}
       >
         <div className="table-number">Mesa {tableNumber}</div>
