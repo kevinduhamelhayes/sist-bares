@@ -7,7 +7,10 @@ import { TableContext } from "../context/TableContext"
 
 const Body = () => {
   const { tables, specialTables } = useContext(TableContext)
-  const allTables = [...tables, ...specialTables].sort((a, b) => a.number - b.number)
+  
+  // Asegurarse de que specialTables sea un array antes de usar spread
+  const safeSpecialTables = Array.isArray(specialTables) ? specialTables : [];
+  const allTables = [...tables, ...safeSpecialTables].sort((a, b) => a.number - b.number);
 
   // Log para debugging
   useEffect(() => {
