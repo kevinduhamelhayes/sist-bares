@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import "./styles/body.css"
 import "./styles/unit.css"
 // Importar Firebase y Firestore
 import { db } from "./firebaseConfig";
 import { collection, query, onSnapshot, doc, setDoc, getDoc } from "firebase/firestore";
+import { MenuContext } from "../context/MenuContext"; // Importar MenuContext
 
 const Unit = ({ tableNumber }) => {
   const docId = `table-${tableNumber}`; // ID del documento en Firestore
@@ -20,7 +21,6 @@ const Unit = ({ tableNumber }) => {
   const [orders, setOrders] = useState([]);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [currentChairIndex, setCurrentChairIndex] = useState(null);
-  const [menuItems, setMenuItems] = useState([]);
   const [isLoadingState, setIsLoadingState] = useState(true); // Estado de carga inicial
   
   // Mapeo de estados a colores (usando variables CSS)
@@ -29,6 +29,9 @@ const Unit = ({ tableNumber }) => {
     male: 'var(--chair-bg-male)',
     female: 'var(--chair-bg-female)',
   };
+
+  // Consumir MenuContext
+  const { menuItems, isLoadingMenu } = useContext(MenuContext);
 
   // ---- useEffect para LEER/ESCUCHAR el estado de la mesa desde Firestore ----
   useEffect(() => {
@@ -100,28 +103,6 @@ const Unit = ({ tableNumber }) => {
     saveData();
 
   }, [chairStates, orders, tableNumber, tableStateRef, isLoadingState]); // Ejecutar si cambia el estado local
-
-  // useEffect para leer el menú de Firebase
-  useEffect(() => {
-    console.log(`Unit ${tableNumber}: Suscribiéndose al menú de Firebase...`);
-    const q = query(collection(db, "menuItems"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let itemsArr = [];
-      querySnapshot.forEach((doc) => {
-        itemsArr.push({ ...doc.data(), id: doc.id });
-      });
-      setMenuItems(itemsArr);
-      console.log(`Unit ${tableNumber}: Menú actualizado de Firebase (${itemsArr.length} items)`);
-    }, (error) => {
-      console.error(`Unit ${tableNumber}: Error al leer menú de Firebase: `, error);
-    });
-
-    // Limpiar suscripción al desmontar
-    return () => {
-      console.log(`Unit ${tableNumber}: Desuscribiéndose del menú de Firebase.`);
-      unsubscribe();
-    };
-  }, [tableNumber]); // Dependencia de tableNumber por los logs, aunque la query es la misma
 
   // Se asegura que todas las sillas sean visibles al montar el componente
   useEffect(() => {
@@ -225,8 +206,8 @@ const Unit = ({ tableNumber }) => {
   }
 
   // ---- Renderizado ----
-  if (isLoadingState) {
-    return <div className="unidad-loading">Cargando mesa {tableNumber}...</div>; // Placeholder de carga
+  if (isLoadingState || isLoadingMenu) {
+    return <div className="unidad-loading">Cargando mesa {tableNumber}...</div>;
   }
 
   return (
@@ -270,7 +251,7 @@ const Unit = ({ tableNumber }) => {
         )}
       </div>
 
-      {/* Modal - Ahora usa menuItems del estado local (Firebase) */}
+      {/* Modal - Usa menuItems del Context */}
       {showOrderModal && (
         <div className="order-modal">
           <div className="order-modal-content">
@@ -298,7 +279,7 @@ const Unit = ({ tableNumber }) => {
                   </button>
                 ))
               ) : (
-                <p>Cargando menú...</p>
+                <p>No hay ítems en el menú.</p>
               )}
             </div>
             <div className="modal-actions">

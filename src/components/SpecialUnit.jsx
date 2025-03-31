@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import "./styles/body.css"
 import "./styles/unit.css"
 import "./styles/specialUnit.css"
 // Importar Firebase y Firestore
 import { db } from "./firebaseConfig";
-import { collection, query, onSnapshot, doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { MenuContext } from "../context/MenuContext";
 
 const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
   const docId = `table-${tableNumber}`; // ID del documento en Firestore
@@ -16,30 +17,10 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [orders, setOrders] = useState([])
   const [currentChairIndex, setCurrentChairIndex] = useState(null)
-  const [menuItems, setMenuItems] = useState([])
   const [isLoadingState, setIsLoadingState] = useState(true)
 
-  // useEffect para leer el menú de Firebase
-  useEffect(() => {
-    console.log(`SpecialUnit ${tableNumber}: Suscribiéndose al menú de Firebase...`);
-    const q = query(collection(db, "menuItems"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let itemsArr = [];
-      querySnapshot.forEach((doc) => {
-        itemsArr.push({ ...doc.data(), id: doc.id });
-      });
-      setMenuItems(itemsArr);
-      console.log(`SpecialUnit ${tableNumber}: Menú actualizado de Firebase (${itemsArr.length} items)`);
-    }, (error) => {
-      console.error(`SpecialUnit ${tableNumber}: Error al leer menú de Firebase: `, error);
-    });
-
-    // Limpiar suscripción al desmontar
-    return () => {
-      console.log(`SpecialUnit ${tableNumber}: Desuscribiéndose del menú de Firebase.`);
-      unsubscribe();
-    };
-  }, [tableNumber]);
+  // Consumir MenuContext
+  const { menuItems, isLoadingMenu } = useContext(MenuContext);
 
   // useEffect para actualizar el color de la mesa basado en el estado de las sillas
   useEffect(() => {
@@ -201,7 +182,7 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
     };
   };
 
-  if (isLoadingState) {
+  if (isLoadingState || isLoadingMenu) {
     return <div className="unidad-loading">Cargando mesa {tableNumber}...</div>;
   }
 
@@ -281,7 +262,7 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
                   </button>
                 ))
               ) : (
-                <p>Cargando menú...</p>
+                <p>No hay ítems en el menú.</p>
               )}
             </div>
             <div className="modal-actions">
