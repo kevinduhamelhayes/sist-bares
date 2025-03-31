@@ -116,40 +116,40 @@
 
 /* --- POSICIONES ESPECÍFICAS REFORZADAS --- */
 
-/* Silla 1: Arriba */
+/* Silla 1: Arriba-Izquierda */
 .chair.chair-1 {
   top: 10px !important;
-  left: 50% !important;
+  left: 30% !important;
   right: auto !important;
   bottom: auto !important;
   transform: translateX(-50%) !important;
 }
 
-/* Silla 2: Derecha */
+/* Silla 2: Arriba-Derecha */
 .chair.chair-2 {
-  top: 50% !important;
-  right: 10px !important;
-  left: auto !important;
+  top: 10px !important;
+  left: 70% !important;
+  right: auto !important;
   bottom: auto !important;
-  transform: translateY(-50%) !important;
+  transform: translateX(-50%) !important;
 }
 
-/* Silla 3: Abajo */
+/* Silla 3: Abajo-Izquierda */
 .chair.chair-3 {
   bottom: 10px !important;
-  left: 50% !important;
+  left: 30% !important;
   top: auto !important;
   right: auto !important;
   transform: translateX(-50%) !important;
 }
 
-/* Silla 4: Izquierda */
+/* Silla 4: Abajo-Derecha */
 .chair.chair-4 {
-  top: 50% !important;
-  left: 10px !important;
+  bottom: 10px !important;
+  left: 70% !important;
+  top: auto !important;
   right: auto !important;
-  bottom: auto !important;
-  transform: translateY(-50%) !important;
+  transform: translateX(-50%) !important;
 }
 
 /* Ajustar :hover para las nuevas posiciones */
@@ -160,13 +160,10 @@
 
 /* Aplicar escalado específico en hover, combinando transformaciones */
 .chair.chair-1:hover,
-.chair.chair-3:hover {
-  transform: translateX(-50%) scale(1.1);
-}
-
 .chair.chair-2:hover,
+.chair.chair-3:hover,
 .chair.chair-4:hover {
-  transform: translateY(-50%) scale(1.1);
+  transform: translateX(-50%) scale(1.1) !important;
 }
 
 /* --- FIN POSICIONES ESTÁNDAR --- */
