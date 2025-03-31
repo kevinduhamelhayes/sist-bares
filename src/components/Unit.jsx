@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react"
 import "./styles/body.css"
 import "./styles/unit.css"
+// Importar Firebase y Firestore
+import { db } from "./firebaseConfig";
+import { collection, query, onSnapshot } from "firebase/firestore";
 
 const Unit = ({ tableNumber }) => {
   // Log para debugging
@@ -21,6 +24,31 @@ const Unit = ({ tableNumber }) => {
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [orders, setOrders] = useState([])
   const [currentChairIndex, setCurrentChairIndex] = useState(null)
+
+  // Estado para los ítems del menú leídos de Firebase
+  const [menuItems, setMenuItems] = useState([]);
+
+  // useEffect para leer el menú de Firebase
+  useEffect(() => {
+    console.log(`Unit ${tableNumber}: Suscribiéndose al menú de Firebase...`);
+    const q = query(collection(db, "menuItems"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let itemsArr = [];
+      querySnapshot.forEach((doc) => {
+        itemsArr.push({ ...doc.data(), id: doc.id });
+      });
+      setMenuItems(itemsArr);
+      console.log(`Unit ${tableNumber}: Menú actualizado de Firebase (${itemsArr.length} items)`);
+    }, (error) => {
+      console.error(`Unit ${tableNumber}: Error al leer menú de Firebase: `, error);
+    });
+
+    // Limpiar suscripción al desmontar
+    return () => {
+      console.log(`Unit ${tableNumber}: Desuscribiéndose del menú de Firebase.`);
+      unsubscribe();
+    };
+  }, [tableNumber]); // Dependencia de tableNumber por los logs, aunque la query es la misma
 
   // Se asegura que todas las sillas sean visibles al montar el componente
   useEffect(() => {
@@ -160,11 +188,11 @@ const Unit = ({ tableNumber }) => {
         )}
       </div>
 
-      {/* Modal para añadir pedidos */}
+      {/* Modal - Ahora usa menuItems del estado local (Firebase) */}
       {showOrderModal && (
         <div className="order-modal">
           <div className="order-modal-content">
-            <h3>Añadir pedido - Silla {currentChairIndex + 1}</h3>
+            <h3>Añadir pedido - Silla {currentChairIndex !== null ? currentChairIndex + 1 : ''}</h3>
             
             {getOrdersByChair(currentChairIndex).length > 0 && (
               <div className="current-orders">
@@ -180,14 +208,16 @@ const Unit = ({ tableNumber }) => {
             )}
             
             <div className="menu-items">
-              <button onClick={() => handleAddOrder({ name: "Café", price: 2.50 })}>Café ($2.50)</button>
-              <button onClick={() => handleAddOrder({ name: "Té", price: 2.00 })}>Té ($2.00)</button>
-              <button onClick={() => handleAddOrder({ name: "Cerveza", price: 5.00 })}>Cerveza ($5.00)</button>
-              <button onClick={() => handleAddOrder({ name: "Vino", price: 7.50 })}>Vino ($7.50)</button>
-              <button onClick={() => handleAddOrder({ name: "Agua", price: 1.00 })}>Agua ($1.00)</button>
-              <button onClick={() => handleAddOrder({ name: "Refresco", price: 2.50 })}>Refresco ($2.50)</button>
-              <button onClick={() => handleAddOrder({ name: "Hamburguesa", price: 9.00 })}>Hamburguesa ($9.00)</button>
-              <button onClick={() => handleAddOrder({ name: "Pizza", price: 12.00 })}>Pizza ($12.00)</button>
+              {menuItems.length > 0 ? (
+                menuItems.map((item) => (
+                  <button key={item.id} onClick={() => handleAddOrder(item)} disabled={!item.available}>
+                    {item.name} (${item.price.toFixed(2)})
+                    {!item.available && ' (No disp.)'}
+                  </button>
+                ))
+              ) : (
+                <p>Cargando menú...</p>
+              )}
             </div>
             <div className="modal-actions">
               <button className="close-btn" onClick={() => setShowOrderModal(false)}>Cerrar</button>
