@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { db } from './firebaseConfig';
+import { db } from '../components/firebaseConfig';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 // Hook reutilizable para la lógica de una mesa (estándar o especial)
