@@ -1,11 +1,13 @@
-import { useContext, useEffect } from "react"
+import React, { useContext, useEffect } from "react"
 import Unit from "./Unit"
 import SpecialUnit from "./SpecialUnit"
+import DailySales from './DailySales'
 import "./styles/body.css"
 import { TableContext } from "../context/TableContext"
 
 const Body = () => {
-  const { tables } = useContext(TableContext)
+  const { tables, specialTables } = useContext(TableContext)
+  const allTables = [...tables, ...specialTables].sort((a, b) => a.number - b.number)
 
   // Log para debugging
   useEffect(() => {
@@ -14,26 +16,27 @@ const Body = () => {
 
   return (
     <div className="body-container">
+      <DailySales />
+
       <div className="body-grid">
-        {tables && tables.length > 0 ? (
-          tables.map((table) => {
+        {allTables.length > 0 ? (
+          allTables.map((table) => {
             console.log(`Rendering table ${table.number}, isSpecial: ${table.isSpecial}`);
             return table.isSpecial ? (
               <SpecialUnit 
-                key={table.id}
-                tableNumber={table.number}
-                chairCount={table.capacity}
+                key={`special-${table.number}`}
+                table={table}
               />
             ) : (
               <Unit 
-                key={table.id} 
+                key={`unit-${table.number}`} 
                 tableNumber={table.number} 
               />
             )
           })
         ) : (
           <div className="no-tables-message">
-            No hay mesas disponibles. Por favor, intenta recargar la página.
+            No hay mesas configuradas.
           </div>
         )}
       </div>

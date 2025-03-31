@@ -60,6 +60,12 @@ const SpecialUnit = ({ table }) => {
       
       <div className="table special-table" style={{ backgroundColor: tableColor }} onClick={handleTableClick}>
         <span className="table-number">{tableNumber}</span>
+         {/* Mover el total dentro de la mesa */} 
+         {orders.length > 0 && (
+          <div className="total-amount-display">
+            Total: ${getTotalAmount()}
+          </div>
+        )}
       </div>
       {/* Renderizar sillas dinámicamente */} 
       {Array.from({ length: chairCount }).map((_, index) => (
@@ -115,13 +121,6 @@ const SpecialUnit = ({ table }) => {
               </div>
             )}
           </div>
-        </div>
-      )}
-
-      {/* Total (igual que en Unit.jsx) */} 
-      {orders.length > 0 && (
-        <div className="total-amount-display">
-          Total: ${getTotalAmount()}
         </div>
       )}
     </div>

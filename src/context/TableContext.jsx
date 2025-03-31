@@ -4,32 +4,23 @@ import { createContext, useState, useEffect, useMemo } from 'react';
 export const TableContext = createContext();
 
 export const TableProvider = ({ children }) => {
-  // Estado para las mesas
-  const [tables, setTables] = useState([]);
+  // Estado para las mesas - Inicializar directamente con las 25 mesas estándar
+  const [tables, setTables] = useState(() => {
+    console.log('TableContext: Creando mesas estándar iniciales en useState...');
+    const initialTables = Array(25).fill().map((_, index) => ({
+      id: `standard-${index + 1}`,
+      number: index + 1,
+      type: 'standard',
+      capacity: 4,
+      isSpecial: false
+    }));
+    console.log(`TableContext: Mesas iniciales creadas (${initialTables.length})`);
+    return initialTables;
+  });
 
-  // Flag para asegurar la inicialización única
-  const [initialized, setInitialized] = useState(false);
-
+  // Log para verificar el estado actual (ya no necesitamos el useEffect de inicialización)
   useEffect(() => {
-    // Inicializar solo una vez
-    if (!initialized) {
-      console.log('TableContext: Inicializando mesas estándar...');
-      const initialTables = Array(25).fill().map((_, index) => ({
-        id: `standard-${index + 1}`,
-        number: index + 1,
-        type: 'standard',
-        capacity: 4,
-        isSpecial: false
-      }));
-      setTables(initialTables);
-      setInitialized(true);
-      console.log(`TableContext: Mesas estándar inicializadas (${initialTables.length})`);
-    }
-  }, [initialized]); // Ejecutar solo cuando 'initialized' cambie
-
-  // Para debugging
-  useEffect(() => {
-    console.log('Estado actual de mesas en TableContext:', tables);
+    console.log('TableContext: Estado actual de mesas:', tables.length > 0 ? `${tables.length} mesas` : 'Vacío');
   }, [tables]);
 
   // Añadir una mesa especial

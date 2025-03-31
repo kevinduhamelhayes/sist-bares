@@ -15,7 +15,6 @@ const Home = () => {
   return (
     <div className="home-container">
       <div className="main-section">
-        <AddSpecialTable />
         <Body />
       </div>
     </div>

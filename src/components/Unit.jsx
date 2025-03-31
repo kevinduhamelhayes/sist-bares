@@ -36,6 +36,11 @@ const Unit = ({ tableNumber }) => {
     <div className="unidad">
       <div className="table" style={{ backgroundColor: tableColor }} onClick={handleTableClick}>
         <span className="table-number">{tableNumber}</span>
+        {orders.length > 0 && (
+          <div className="total-amount-display">
+            Total: ${getTotalAmount()}
+          </div>
+        )}
       </div>
       {chairStates.map((state, index) => (
         <div
@@ -75,7 +80,6 @@ const Unit = ({ tableNumber }) => {
               )}
             </div>
             <button onClick={handleCloseModal} className="close-modal-button">Cerrar</button>
-            {/* Mostrar pedidos actuales de la silla */} 
             {currentChairIndex !== null && (
               <div className="current-chair-orders">
                 <h4>Pedidos Silla {currentChairIndex + 1}:</h4>
@@ -87,13 +91,6 @@ const Unit = ({ tableNumber }) => {
               </div>
             )}
           </div>
-        </div>
-      )}
-
-      {/* Opcional: Mostrar resumen de la cuenta total */}
-      {orders.length > 0 && (
-        <div className="total-amount-display">
-          Total: ${getTotalAmount()}
         </div>
       )}
     </div>

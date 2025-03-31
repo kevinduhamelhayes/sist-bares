@@ -231,18 +231,18 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* -- FIX TOTAL AMOUNT -- */
+/* -- AJUSTAR POSICIÓN TOTAL AMOUNT -- */
 .total-amount-display {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: 5px;  /* Ajustar posición superior dentro de la mesa */
+  right: 5px; /* Ajustar posición derecha dentro de la mesa */
   background-color: rgba(0, 0, 0, 0.7);
   color: white;
-  padding: 5px 10px;
-  border-radius: 10px;
-  font-size: 0.9rem;
+  padding: 3px 8px; /* Reducir padding si es necesario */
+  border-radius: 8px; /* Ajustar border-radius */
+  font-size: 0.8rem; /* Ajustar tamaño de fuente */
   font-weight: bold;
-  z-index: 3;
+  z-index: 3; /* Mantener encima de otros elementos de la mesa */
 }
 
 /* Estilos para la lista de ítems del pedido */
