@@ -2,7 +2,7 @@
   position: relative;
   min-width: 300px;
   min-height: 300px;
-  padding: 40px;
+  padding: 50px 40px 40px 40px;
   margin: 20px;
   display: flex;
   justify-content: center;
@@ -11,7 +11,7 @@
 
 .special-label {
   position: absolute;
-  top: 5px;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
   background-color: var(--primary-color);
@@ -19,7 +19,7 @@
   padding: 2px 10px;
   border-radius: 15px;
   font-size: 0.8rem;
-  z-index: 1;
+  z-index: 3;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -128,7 +128,7 @@
   .special-unit {
     min-width: 250px;
     min-height: 250px;
-    padding: 30px;
+    padding: 40px 30px 30px 30px;
   }
   
   .special-chair {
@@ -141,7 +141,7 @@
   .special-unit {
     min-width: 200px;
     min-height: 200px;
-    padding: 25px;
+    padding: 35px 25px 25px 25px;
   }
   
   .special-chair {

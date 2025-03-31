@@ -115,23 +115,19 @@ const SpecialUnit = ({ tableNumber, chairCount = 8 }) => {
 
   // Calculamos el ángulo para cada silla alrededor de la mesa especial
   const getChairPosition = (index) => {
-    const angleDegrees = (360 / chairCount) * index - 90; // Empezar desde arriba (-90 grados)
+    const angleDegrees = (360 / chairCount) * index - 90;
     const angleRadians = (angleDegrees * Math.PI) / 180;
     
-    // Radio para posicionar las sillas (ajustar según tamaño de mesa/silla)
-    // Usaremos % relativo al contenedor .special-unit
-    const radiusPercent = 45; // 45% del radio del contenedor .special-unit
+    // Radio reducido para acercar las sillas
+    const radiusPercent = 40; // Reducido desde 45%
     
-    // Cálculo de la posición relativa al centro (50%, 50%)
-    // Usamos translate para centrar la silla en la posición calculada
     const xPos = 50 + radiusPercent * Math.cos(angleRadians);
     const yPos = 50 + radiusPercent * Math.sin(angleRadians);
     
-    // Devolvemos estilo para left, top y transform para centrar la silla
     return {
       left: `${xPos}%`,
       top: `${yPos}%`,
-      transform: 'translate(-50%, -50%)', // Centra la silla
+      transform: 'translate(-50%, -50%)',
     };
   };
 

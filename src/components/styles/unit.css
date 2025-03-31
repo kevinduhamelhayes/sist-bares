@@ -84,29 +84,29 @@
 
 /* Silla 1: Arriba-Izquierda */
 .chair.top {
-  top: 20px; 
-  left: 30%; /* Ajustar porcentaje para separación */
+  top: 10px;
+  left: 30%;
   transform: translateX(-50%);
 }
 
 /* Silla 2: Arriba-Derecha */
 .chair.right {
-  top: 20px;
-  left: 70%; /* Ajustar porcentaje para separación */
+  top: 10px;
+  left: 70%;
   transform: translateX(-50%);
 }
 
 /* Silla 3: Abajo-Izquierda */
 .chair.bottom {
-  bottom: 20px;
-  left: 30%; /* Ajustar porcentaje para separación */
+  bottom: 10px;
+  left: 30%;
   transform: translateX(-50%);
 }
 
 /* Silla 4: Abajo-Derecha */
 .chair.left {
-  bottom: 20px;
-  left: 70%; /* Ajustar porcentaje para separación */
+  bottom: 10px;
+  left: 70%;
   transform: translateX(-50%);
 }
 
