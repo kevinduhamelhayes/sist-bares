@@ -114,6 +114,50 @@
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
+/* --- REINTRODUCIR POSICIONES --- */
+/* Silla 1: Arriba-Izquierda */
+.chair.top {
+  top: 10px; 
+  left: 30%; 
+  transform: translateX(-50%);
+}
+
+/* Silla 2: Arriba-Derecha */
+.chair.right {
+  top: 10px;
+  left: 70%;
+  transform: translateX(-50%);
+}
+
+/* Silla 3: Abajo-Izquierda */
+.chair.bottom {
+  bottom: 10px;
+  left: 30%;
+  transform: translateX(-50%);
+}
+
+/* Silla 4: Abajo-Derecha */
+.chair.left {
+  bottom: 10px;
+  left: 70%;
+  transform: translateX(-50%);
+}
+
+/* Ajustar :hover para las nuevas posiciones */
+.chair:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  /* El escalado puede afectar la posición, aplicar con cuidado si es necesario */
+}
+
+/* Aplicar escalado específico si se desea, asegurando que no rompa la posición */
+.chair.top:hover,
+.chair.right:hover,
+.chair.bottom:hover,
+.chair.left:hover {
+  transform: translateX(-50%) scale(1.1);
+}
+/* --- FIN REINTRODUCIR POSICIONES --- */
+
 .chair-number {
   font-size: 0.8rem;
   font-weight: bold;
