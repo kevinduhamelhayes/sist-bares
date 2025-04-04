@@ -15,6 +15,9 @@ import AddSpecialTable from "./components/AddSpecialTable"
 import { TableProvider } from "./context/TableContext"
 import { OrderProvider } from "./context/OrderContext"
 import { MenuProvider } from "./context/MenuContext"
+import ReportsPage from "./pages/ReportsPage"
+import './App.css'
+import './index.css'
 
 function App() {
   const { isDarkMode } = useContext(ThemeContext)
@@ -51,6 +54,7 @@ function App() {
                       <Route path="add-special-table" element={<AddSpecialTable />} />
                       <Route path="add-products" element={<AddProducts />} />
                       <Route path="menu" element={<ManageMenuItems />} />
+                      <Route path="reports" element={<ReportsPage />} />
                     </Route>
                   </Routes>
                 </div>

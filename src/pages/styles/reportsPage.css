@@ -1,0 +1,43 @@
+.reports-page-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.reports-page-container h1 {
+  color: var(--primary-color, #1565c0);
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.reports-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.register-section,
+.metrics-section {
+  width: 100%;
+}
+
+/* Para pantallas grandes, colocar los componentes uno al lado del otro */
+@media (min-width: 1200px) {
+  .reports-sections {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  
+  .register-section,
+  .metrics-section {
+    flex: 1;
+  }
+}
+
+/* Dark mode */
+.dark-mode .reports-page-container h1 {
+  color: var(--primary-color, #1976d2);
+  border-bottom-color: #555;
+} 
