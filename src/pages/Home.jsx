@@ -1,24 +1,14 @@
-import React, { useEffect, useContext } from 'react'
-import Body from '../components/Body'
-import AddSpecialTable from '../components/AddSpecialTable'
-import { TableContext } from '../context/TableContext'
+import React from 'react';
+import Body from '../components/Body';
 
 const Home = () => {
-  const { tables } = useContext(TableContext);
-  
-  // Log para verificar el flujo de renderizado
-  useEffect(() => {
-    console.log('Home component rendered');
-    console.log('Tables in Home context:', tables);
-  }, [tables]);
-
   return (
-    <div className="home-container">
-      <div className="main-section">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-[1400px] mx-auto">
         <Body />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Home 
+export default Home; 
