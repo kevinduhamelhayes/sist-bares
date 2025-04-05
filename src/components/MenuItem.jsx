@@ -3,7 +3,6 @@ import { AiFillCloseSquare } from "react-icons/ai";
 import { useState } from "react";
 import { db } from "./firebaseConfig";
 import { updateDoc, doc } from "firebase/firestore";
-import "./styles/menuItem.css";
 
 const MenuItem = ({ 
   item, 
@@ -48,48 +47,57 @@ const MenuItem = ({
   };
 
   return (
-    <li className={`menu-item ${!item.available ? 'unavailable' : ''} ${isSelected ? 'selected' : ''}`} onClick={() => bulkEditMode && onSelect(item.id)}>
-      {bulkEditMode ? (
-        <div className="menu-item-bulk-select">
+    <li 
+      className={`flex bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 
+        ${!item.available ? 'opacity-70 border-l-4 border-red-500' : ''} 
+        ${isSelected ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+      onClick={() => bulkEditMode && onSelect(item.id)}
+    >
+      {bulkEditMode && (
+        <div className="flex items-center justify-center px-4 bg-gray-50">
           <input 
             type="checkbox" 
             checked={isSelected} 
             onChange={() => onSelect(item.id)}
             onClick={(e) => e.stopPropagation()}
+            className="w-5 h-5 cursor-pointer"
           />
         </div>
-      ) : null}
+      )}
       
-      <div className="menu-item-content">
+      <div className="flex-1 p-4">
         {isEditing ? (
-          <div className="menu-item-edit-form">
-            <div className="form-group">
-              <label>Nombre:</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             
-            <div className="form-group">
-              <label>Precio:</label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Precio:</label>
               <input
                 type="number"
                 name="price"
                 step="0.01"
                 value={formData.price}
                 onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             
-            <div className="form-group">
-              <label>Categoría:</label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Categoría:</label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="bebidas">Bebidas</option>
                 <option value="comidas">Comidas</option>
@@ -98,30 +106,33 @@ const MenuItem = ({
               </select>
             </div>
             
-            <div className="form-group">
-              <label>Descripción:</label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Descripción:</label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 rows="2"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               ></textarea>
             </div>
           </div>
         ) : (
-          <div className="menu-item-details">
-            <div className="menu-item-main-info">
-              <h4 className="menu-item-name">{item.name}</h4>
-              <div className="menu-item-price">{formatPrice(item.price)}</div>
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <h4 className="text-lg font-semibold text-gray-800">{item.name}</h4>
+              <div className="text-lg font-bold text-emerald-600">{formatPrice(item.price)}</div>
             </div>
             
             {item.description && (
-              <p className="menu-item-description">{item.description}</p>
+              <p className="text-gray-600 text-sm line-clamp-2">{item.description}</p>
             )}
             
-            <div className="menu-item-meta">
-              <span className="menu-item-category">{item.category}</span>
-              <span className="menu-item-availability">
+            <div className="flex justify-between text-sm mt-2">
+              <span className="bg-gray-100 px-2 py-1 rounded-full capitalize text-gray-600">
+                {item.category}
+              </span>
+              <span className="text-gray-600">
                 {item.available ? 'Disponible' : 'No disponible'}
               </span>
             </div>
@@ -130,45 +141,57 @@ const MenuItem = ({
       </div>
       
       {!bulkEditMode && (
-        <div className="menu-item-actions">
+        <div className="flex flex-col justify-center gap-2 p-2 bg-gray-50 md:flex-row">
           {isEditing ? (
-            <div className="edit-actions">
-              <button onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing(false);
-              }} className="btn-icon btn-cancel">
+            <>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditing(false);
+                }} 
+                className="p-2 text-red-500 hover:bg-gray-200 rounded transition-colors"
+              >
                 <AiFillCloseSquare size="1.2em" />
               </button>
-              <button onClick={(e) => {
-                e.stopPropagation();
-                handleConfirmation();
-              }} className="btn-icon btn-confirm">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleConfirmation();
+                }} 
+                className="p-2 text-emerald-600 hover:bg-gray-200 rounded transition-colors"
+              >
                 <FaCheck size="1.2em" />
               </button>
-            </div>
+            </>
           ) : (
             <>
-              <button onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing(true);
-              }} className="btn-icon btn-edit">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditing(true);
+                }} 
+                className="p-2 text-gray-600 hover:bg-gray-200 rounded transition-colors"
+              >
                 <FaPen size="1.2em" />
               </button>
               
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleAvailability(item.id, item.available)
+                  toggleAvailability(item.id, item.available);
                 }} 
-                className="btn-icon btn-toggle"
+                className="p-2 text-emerald-600 hover:bg-gray-200 rounded transition-colors"
               >
                 {item.available ? <FaToggleOn size="1.5em" /> : <FaToggleOff size="1.5em" />}
               </button>
               
-              <button onClick={(e) => {
-                e.stopPropagation();
-                removeMenuItem(item.id);
-              }} className="btn-icon btn-delete">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeMenuItem(item.id);
+                }} 
+                className="p-2 text-red-500 hover:bg-gray-200 rounded transition-colors"
+              >
                 <FaRegTrashAlt size="1.2em" />
               </button>
             </>

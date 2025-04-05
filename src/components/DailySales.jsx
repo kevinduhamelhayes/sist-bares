@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { db } from './firebaseConfig';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { MenuContext } from '../context/MenuContext'; // Para obtener precios si es necesario
-import './styles/dailySales.css'; // Crearemos estilos para este componente
 
 const DailySales = () => {
   const [totalSales, setTotalSales] = useState(0);
@@ -65,13 +64,19 @@ const DailySales = () => {
   }, [menuItems]); // Depender de menuItems por si los precios se obtienen del menú
 
   if (isLoading) {
-    return <div className="daily-sales-container loading">Calculando ventas del día...</div>;
+    return (
+      <div className="bg-gray-50 text-gray-400 p-5 mx-auto my-5 rounded-lg shadow-sm max-w-md text-center">
+        Calculando ventas del día...
+      </div>
+    );
   }
 
   return (
-    <div className="daily-sales-container">
-      <h2>Ventas del Día</h2>
-      <div className="total-sales-amount">
+    <div className="bg-gray-50 text-gray-800 p-5 mx-auto my-5 rounded-lg shadow-sm max-w-md text-center">
+      <h2 className="mt-0 text-blue-700 border-b border-gray-200 pb-2.5 mb-5 text-xl font-semibold">
+        Ventas del Día
+      </h2>
+      <div className="text-3xl font-bold text-rose-600">
         Total: ${totalSales.toFixed(2)}
       </div>
       {/* Aquí podríamos añadir más detalles si quisiéramos, como un desglose por mesa o producto */} 

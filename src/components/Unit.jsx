@@ -1,15 +1,15 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { useTableLogic } from '../hooks/useTableLogic'; // Importar el hook
-import { MenuContext } from '../context/MenuContext'; // Importar el contexto del menú
-import './styles/unit.css'; // Mantener estilos
+import { useTableLogic } from '../hooks/useTableLogic';
+import { useTableUI } from '../hooks/useTableUI';
+import { MenuContext } from '../context/MenuContext';
 import Chair from './Chair';
 import OrderModal from './OrderModal';
-import PaymentModal from './PaymentModal'; // Importar el nuevo componente
+import PaymentModal from './PaymentModal';
 
 const Unit = ({ tableNumber }) => {
-  const chairCount = 4; // Número fijo de sillas para mesas estándar
-  const { // Usar el hook para la lógica
+  const chairCount = 4;
+  const {
     isLoadingState,
     tableColor,
     chairStates,
@@ -17,71 +17,53 @@ const Unit = ({ tableNumber }) => {
     stateColors,
     showOrderModal,
     currentChairIndex,
-    handleTableClick: originalHandleTableClick, // Renombrar para extender funcionalidad
+    handleTableClick: originalHandleTableClick,
     handleChairClick,
     handleAddOrderToChair,
     handleAddOrder,
     handleCloseModal,
     getTotalAmount,
     getOrdersByChair,
-    clearTableData // Usar la nueva función
+    clearTableData
   } = useTableLogic(tableNumber, chairCount);
 
-  // Consumir el contexto del menú
   const { menuItems, isLoadingMenu } = useContext(MenuContext);
-  const [showPaymentModal, setShowPaymentModal] = useState(false); // Estado para el modal de pago
+  
+  const {
+    showPaymentModal,
+    handleTableClick: handleTableUIClick,
+    handleClosePaymentModal,
+    handleConfirmPayment
+  } = useTableUI(tableNumber, orders, tableColor, chairStates, clearTableData);
 
-  // Extender handleTableClick para mostrar modal de pago cuando sea necesario
-  const handleTableClick = () => {
-    // Si la mesa está activa (tiene color diferente al default) y todas las sillas están vacías
-    if (tableColor !== "#ddd" && chairStates.every(state => state === 'empty')) {
-      // Si hay órdenes, mostrar modal de pago
-      if (orders.length > 0) {
-        setShowPaymentModal(true);
-      } else {
-        // Si no hay órdenes, proceder con comportamiento original
-        originalHandleTableClick();
-      }
-    } else {
-      // En otros casos, comportamiento original
-      originalHandleTableClick();
-    }
-  };
+  const handleTableClick = () => handleTableUIClick(originalHandleTableClick);
 
-  // Cerrar el modal de pago
-  const handleClosePaymentModal = () => {
-    setShowPaymentModal(false);
-  };
-
-  // Función para confirmar el pago
-  const handleConfirmPayment = async (tableId, tableNumber) => {
-    const docId = `table-${tableNumber}`;
-    await clearTableData(docId, tableNumber);
-  };
-
-  // Lógica para mostrar mensaje de carga
   if (isLoadingState || isLoadingMenu) {
-    return <div className="unidad loading">Cargando Mesa {tableNumber}...</div>;
+    return (
+      <div className="relative w-[250px] h-[250px] m-5 flex justify-center items-center text-gray-500 animate-pulse">
+        Cargando Mesa {tableNumber}...
+      </div>
+    );
   }
 
-  // Renderizar la mesa y las sillas
   return (
-    <div className="unit-container">
-      <div className="unit-inner">
-        {/* Mesa */}
+    <div className="relative w-[250px] h-[250px] m-5 flex justify-center items-center transition-transform duration-300 hover:-translate-y-1">
+      <div className="relative">
         <div
-          className="table"
+          className="relative w-[150px] h-[100px] rounded-lg flex flex-col justify-center items-center text-center 
+            shadow-md transition-all duration-300 cursor-pointer hover:-translate-y-0.5 hover:shadow-lg z-10
+            dark:bg-gray-700 dark:text-gray-200"
           style={{ backgroundColor: tableColor }}
           onClick={handleTableClick}
         >
-          <span className="table-number">{tableNumber}</span>
-          {/* Mostrar total si hay órdenes */}
+          <span className="font-bold text-lg mb-2">{tableNumber}</span>
           {orders.length > 0 && (
-            <div className="table-amount">${getTotalAmount()}</div>
+            <div className="text-sm bg-black/10 dark:bg-white/10 px-2 py-1 rounded-full mt-1">
+              ${getTotalAmount()}
+            </div>
           )}
         </div>
         
-        {/* Sillas */}
         <Chair
           position="top"
           state={chairStates[0]}
@@ -116,17 +98,17 @@ const Unit = ({ tableNumber }) => {
         />
       </div>
 
-      {/* Modal de Orden (existente) */}
       {showOrderModal && (
         <OrderModal
           onClose={handleCloseModal}
           onAddProduct={handleAddOrder}
           menuItems={menuItems}
           isLoading={isLoadingMenu}
+          chairIndex={currentChairIndex}
+          currentOrders={currentChairIndex !== null ? getOrdersByChair(currentChairIndex) : []}
         />
       )}
 
-      {/* Nuevo Modal de Pago */}
       <PaymentModal
         show={showPaymentModal}
         onClose={handleClosePaymentModal}

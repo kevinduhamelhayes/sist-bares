@@ -1,6 +1,5 @@
 import { useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
-import "./styles/addspecialtable.css"
 import { TableContext } from "../context/TableContext"
 
 const AddSpecialTable = () => {
@@ -14,7 +13,6 @@ const AddSpecialTable = () => {
   const handleAddSpecialTable = (e) => {
     e.preventDefault()
     
-    // Validaciones básicas
     if (tableName.trim() === '') {
       setMessage({ text: 'Por favor, ingresa un número de mesa', type: 'error' })
       return
@@ -26,19 +24,15 @@ const AddSpecialTable = () => {
       return
     }
     
-    // Intentar añadir la mesa especial
     try {
       const added = addSpecialTable(tableNumber, capacity)
       
       if (added) {
         setMessage({ text: `Mesa especial #${tableNumber} añadida con éxito`, type: 'success' })
-        // Limpiar formulario
         setTableName('')
         setCapacity(4)
-        // Ocultar formulario después de añadir
         setShowForm(false)
         
-        // Limpiar mensaje después de 3 segundos
         setTimeout(() => {
           setMessage({ text: '', type: '' })
         }, 3000)
@@ -51,21 +45,29 @@ const AddSpecialTable = () => {
   }
 
   return (
-    <div className="container-add-special-table">
+    <div className="pt-24 min-h-[calc(100vh-60px)] flex justify-center items-start pb-8">
       {!showForm ? (
         <button 
-          className="add-table-button" 
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 text-white font-semibold 
+            shadow-md hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
           onClick={() => setShowForm(true)}
         >
           + Añadir Mesa Especial
         </button>
       ) : (
-        <div className="special-table-form">
-          <h3 className="special-table-title">Crear Mesa Especial</h3>
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
+          <h3 className="text-center mb-6 text-xl font-semibold text-gray-800 dark:text-gray-200">
+            Crear Mesa Especial
+          </h3>
           
-          <form onSubmit={handleAddSpecialTable} className="forms-container">
-            <div className="form-group">
-              <label htmlFor="tableName">Número de Mesa:</label>
+          <form onSubmit={handleAddSpecialTable} className="space-y-4">
+            <div className="flex flex-col gap-2">
+              <label 
+                htmlFor="tableName"
+                className="font-medium text-gray-700 dark:text-gray-300"
+              >
+                Número de Mesa:
+              </label>
               <input
                 type="number"
                 id="tableName"
@@ -73,17 +75,28 @@ const AddSpecialTable = () => {
                 onChange={(e) => setTableName(e.target.value)}
                 min="1"
                 placeholder="Ej: 26"
-                className="form-input"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                  bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                  focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 
+                  dark:focus:ring-blue-400/20 outline-none transition-colors duration-200"
               />
             </div>
             
-            <div className="form-group">
-              <label htmlFor="capacity">Número de Sillas:</label>
+            <div className="flex flex-col gap-2">
+              <label 
+                htmlFor="capacity"
+                className="font-medium text-gray-700 dark:text-gray-300"
+              >
+                Número de Sillas:
+              </label>
               <select
                 id="capacity"
                 value={capacity}
                 onChange={(e) => setCapacity(parseInt(e.target.value))}
-                className="form-select"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                  bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                  focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 
+                  dark:focus:ring-blue-400/20 outline-none transition-colors duration-200"
               >
                 <option value="2">2 sillas</option>
                 <option value="4">4 sillas</option>
@@ -94,10 +107,12 @@ const AddSpecialTable = () => {
               </select>
             </div>
             
-            <div className="form-actions">
+            <div className="flex justify-between gap-4 mt-6">
               <button 
                 type="button" 
-                className="cancel-button"
+                className="flex-1 px-4 py-2 rounded-full border-2 border-gray-300 dark:border-gray-600 
+                  text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 
+                  transition-colors duration-200"
                 onClick={() => {
                   setShowForm(false)
                   setMessage({ text: '', type: '' })
@@ -105,14 +120,24 @@ const AddSpecialTable = () => {
               >
                 Cancelar
               </button>
-              <button type="submit" className="submit-button">
+              <button 
+                type="submit" 
+                className="flex-1 px-4 py-2 rounded-full bg-blue-600 text-white font-semibold 
+                  hover:bg-blue-700 transition-colors duration-200"
+              >
                 Crear Mesa
               </button>
             </div>
           </form>
           
           {message.text && (
-            <div className={`message ${message.type}`}>
+            <div 
+              className={`mt-4 p-4 rounded-md text-center font-medium ${
+                message.type === 'success' 
+                  ? 'bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-200' 
+                  : 'bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-200'
+              }`}
+            >
               {message.text}
             </div>
           )}

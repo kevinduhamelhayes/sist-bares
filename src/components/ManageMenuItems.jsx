@@ -1,159 +1,91 @@
-import { useState, useEffect } from "react"
-import { AiOutlinePlus, AiFillSave } from "react-icons/ai"
-import { db } from "./firebaseConfig"
-import {
-  collection,
-  addDoc,
-  onSnapshot,
-  deleteDoc,
-  doc,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore"
-import MenuItem from "./MenuItem"
-import "./styles/manageMenuItems.css"
+import React from "react";
+import { AiOutlinePlus, AiFillSave } from "react-icons/ai";
+import MenuItem from "./MenuItem";
+import { useMenuManagement } from "../hooks/useMenuManagement";
+import { useBulkEdit } from "../hooks/useBulkEdit";
 
 function ManageMenuItems() {
-  const [menuItems, setMenuItems] = useState([])
-  const [name, setName] = useState("")
-  const [price, setPrice] = useState("")
-  const [description, setDescription] = useState("")
-  const [category, setCategory] = useState("bebidas")
-  const [filter, setFilter] = useState("all")
-  const [bulkEditMode, setBulkEditMode] = useState(false)
-  const [bulkPriceChange, setBulkPriceChange] = useState(0)
-  const [selectedItems, setSelectedItems] = useState([])
+  const {
+    menuItems,
+    filteredItems,
+    name,
+    setName,
+    price,
+    setPrice,
+    description,
+    setDescription,
+    category,
+    setCategory,
+    filter,
+    setFilter,
+    addMenuItem,
+    removeMenuItem,
+    toggleAvailability
+  } = useMenuManagement();
 
-  const addMenuItem = async (e) => {
-    e.preventDefault()
-    if (name === "") {
-      alert("Por favor, introduce el nombre del ítem del menú")
-      return
-    }
-    if (price === "" || isNaN(parseFloat(price))) {
-      alert("Por favor, introduce un precio válido")
-      return
-    }
-    
-    await addDoc(collection(db, "menuItems"), {
-      name,
-      price: parseFloat(price),
-      description,
-      category,
-      available: true,
-    })
-    
-    // Limpiar el formulario
-    setName("")
-    setPrice("")
-    setDescription("")
-    setCategory("bebidas")
-  }
-
-  useEffect(() => {
-    const q = query(collection(db, "menuItems"))
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let itemsArr = []
-      querySnapshot.forEach((doc) => {
-        itemsArr.push({ ...doc.data(), id: doc.id })
-      })
-      setMenuItems(itemsArr)
-    })
-    return () => unsubscribe()
-  }, [])
-
-  const removeMenuItem = async (id) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este ítem?")) {
-      await deleteDoc(doc(db, "menuItems", id))
-    }
-  }
-
-  const toggleAvailability = async (id, currentStatus) => {
-    await updateDoc(doc(db, "menuItems", id), {
-      available: !currentStatus,
-    })
-  }
-
-  const applyBulkPriceChange = async () => {
-    if (bulkPriceChange === 0 || selectedItems.length === 0) {
-      alert("Selecciona al menos un ítem y un valor de cambio diferente a 0")
-      return
-    }
-    
-    const changePercent = parseFloat(bulkPriceChange) / 100
-    
-    for (const itemId of selectedItems) {
-      const item = menuItems.find(item => item.id === itemId)
-      if (item) {
-        const newPrice = item.price * (1 + changePercent)
-        await updateDoc(doc(db, "menuItems", itemId), {
-          price: Math.round(newPrice * 100) / 100, // Redondear a 2 decimales
-        })
-      }
-    }
-    
-    setBulkEditMode(false)
-    setSelectedItems([])
-    setBulkPriceChange(0)
-  }
-
-  const handleItemSelection = (id) => {
-    setSelectedItems(prev => {
-      if (prev.includes(id)) {
-        return prev.filter(itemId => itemId !== id)
-      } else {
-        return [...prev, id]
-      }
-    })
-  }
-
-  const filteredItems = menuItems.filter(item => {
-    if (filter === "all") return true
-    return item.category === filter
-  })
+  const {
+    bulkEditMode,
+    setBulkEditMode,
+    bulkPriceChange,
+    setBulkPriceChange,
+    selectedItems,
+    applyBulkPriceChange,
+    handleItemSelection,
+    resetBulkEdit
+  } = useBulkEdit(menuItems);
 
   return (
-    <div className="menu-manager-container">
-      <div className="menu-manager">
-        <h2 className="title">Gestión de Menú</h2>
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold mb-6">Gestión de Menú</h2>
         
         {!bulkEditMode ? (
           <>
-            <div className="menu-form-container">
-              <h3>Añadir nuevo ítem</h3>
-              <form onSubmit={addMenuItem} className="menu-form">
-                <div className="form-group">
-                  <label htmlFor="name">Nombre</label>
-                  <input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    type="text"
-                    placeholder="Nombre del ítem"
-                    required
-                  />
+            <div className="bg-gray-50 rounded-lg p-6 mb-8">
+              <h3 className="text-xl font-semibold mb-4">Añadir nuevo ítem</h3>
+              <form onSubmit={addMenuItem} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre
+                    </label>
+                    <input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      type="text"
+                      placeholder="Nombre del ítem"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
+                      Precio ($)
+                    </label>
+                    <input
+                      id="price"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
                 </div>
                 
-                <div className="form-group">
-                  <label htmlFor="price">Precio ($)</label>
-                  <input
-                    id="price"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    required
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="category">Categoría</label>
+                <div>
+                  <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                    Categoría
+                  </label>
                   <select
                     id="category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="bebidas">Bebidas</option>
                     <option value="comidas">Comidas</option>
@@ -162,34 +94,46 @@ function ManageMenuItems() {
                   </select>
                 </div>
                 
-                <div className="form-group">
-                  <label htmlFor="description">Descripción</label>
+                <div>
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                    Descripción
+                  </label>
                   <textarea
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Descripción del ítem"
                     rows="3"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   ></textarea>
                 </div>
                 
-                <button type="submit" className="btn btn-primary">
-                  <AiOutlinePlus /> Añadir ítem
+                <button
+                  type="submit"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <AiOutlinePlus className="mr-2" /> Añadir ítem
                 </button>
               </form>
             </div>
             
-            <div className="menu-actions">
-              <button onClick={() => setBulkEditMode(true)} className="btn btn-secondary">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+              <button
+                onClick={() => setBulkEditMode(true)}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
                 Edición masiva
               </button>
               
-              <div className="category-filter">
-                <label htmlFor="filter">Filtrar por categoría:</label>
+              <div className="flex items-center gap-2">
+                <label htmlFor="filter" className="text-sm font-medium text-gray-700">
+                  Filtrar por categoría:
+                </label>
                 <select
                   id="filter"
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">Todos</option>
                   <option value="bebidas">Bebidas</option>
@@ -201,30 +145,36 @@ function ManageMenuItems() {
             </div>
           </>
         ) : (
-          <div className="bulk-edit-container">
-            <h3>Edición masiva de precios</h3>
-            <p>Selecciona los ítems que quieres modificar</p>
+          <div className="bg-gray-50 rounded-lg p-6 mb-8">
+            <h3 className="text-xl font-semibold mb-2">Edición masiva de precios</h3>
+            <p className="text-gray-600 mb-4">Selecciona los ítems que quieres modificar</p>
             
-            <div className="bulk-edit-controls">
-              <div className="form-group">
-                <label htmlFor="bulkChange">Cambio de precio (%)</label>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="bulkChange" className="block text-sm font-medium text-gray-700 mb-1">
+                  Cambio de precio (%)
+                </label>
                 <input
                   id="bulkChange"
                   type="number"
                   value={bulkPriceChange}
                   onChange={(e) => setBulkPriceChange(e.target.value)}
                   placeholder="Ej: 10 para +10%, -5 para -5%"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               
-              <div className="bulk-edit-actions">
-                <button onClick={applyBulkPriceChange} className="btn btn-primary">
-                  <AiFillSave /> Aplicar cambios
+              <div className="flex gap-4">
+                <button
+                  onClick={applyBulkPriceChange}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <AiFillSave className="mr-2" /> Aplicar cambios
                 </button>
-                <button onClick={() => {
-                  setBulkEditMode(false)
-                  setSelectedItems([])
-                }} className="btn btn-secondary">
+                <button
+                  onClick={resetBulkEdit}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
                   Cancelar
                 </button>
               </div>
@@ -232,12 +182,14 @@ function ManageMenuItems() {
           </div>
         )}
         
-        <div className="menu-items-list">
-          <h3>Ítems del menú ({filteredItems.length})</h3>
+        <div>
+          <h3 className="text-xl font-semibold mb-4">
+            Ítems del menú ({filteredItems.length})
+          </h3>
           {filteredItems.length === 0 ? (
-            <p className="empty-list">No hay ítems para mostrar</p>
+            <p className="text-gray-500 text-center py-4">No hay ítems para mostrar</p>
           ) : (
-            <ul>
+            <div className="space-y-4">
               {filteredItems.map((item) => (
                 <MenuItem
                   key={item.id}
@@ -249,12 +201,12 @@ function ManageMenuItems() {
                   onSelect={handleItemSelection}
                 />
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default ManageMenuItems
+export default ManageMenuItems;

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './styles/paymentModal.css';
 
 /**
  * Modal de confirmación de pago para cerrar una mesa
@@ -48,51 +47,61 @@ const PaymentModal = ({
   const formatPrice = (price) => `$${Number(price).toFixed(2)}`;
 
   return (
-    <div className="payment-modal-backdrop" onClick={handleBackdropClick}>
-      <div className="payment-modal">
-        <div className="payment-modal-header">
-          <h2>Confirmar Pago - Mesa #{tableNumber}</h2>
-          <button className="close-btn" onClick={onClose}>&times;</button>
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      onClick={handleBackdropClick}
+    >
+      <div className="bg-white rounded-lg shadow-xl w-[90%] max-w-[500px] max-h-[90vh] overflow-y-auto animate-modal">
+        <div className="flex justify-between items-center px-5 py-4 border-b border-gray-200 bg-blue-700 text-white rounded-t-lg">
+          <h2 className="text-xl font-semibold">Confirmar Pago - Mesa #{tableNumber}</h2>
+          <button 
+            className="text-2xl leading-none opacity-80 hover:opacity-100 transition-opacity"
+            onClick={onClose}
+          >
+            &times;
+          </button>
         </div>
         
-        <div className="payment-modal-body">
+        <div className="p-5">
           {orders.length > 0 ? (
             <>
-              <div className="order-summary">
-                <h3>Resumen de Pedidos</h3>
-                <table className="order-table">
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-800 mb-3">Resumen de Pedidos</h3>
+                <table className="w-full">
                   <thead>
                     <tr>
-                      <th>Producto</th>
-                      <th>Precio</th>
+                      <th className="py-2.5 px-3 text-left bg-gray-50 text-gray-600 font-medium">Producto</th>
+                      <th className="py-2.5 px-3 text-left bg-gray-50 text-gray-600 font-medium">Precio</th>
                     </tr>
                   </thead>
                   <tbody>
                     {orders.map((order, index) => (
-                      <tr key={index}>
-                        <td>{order.item?.name || 'Producto sin nombre'}</td>
-                        <td>{formatPrice(order.item?.price || 0)}</td>
+                      <tr key={index} className="border-b border-gray-100">
+                        <td className="py-2.5 px-3">{order.item?.name || 'Producto sin nombre'}</td>
+                        <td className="py-2.5 px-3">{formatPrice(order.item?.price || 0)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               
-              <div className="total-section">
-                <h3>Total a Pagar</h3>
-                <div className="total-amount">{formatPrice(totalAmount)}</div>
+              <div className="flex justify-between items-center bg-gray-50 p-4 rounded-md mb-6">
+                <h3 className="text-lg font-medium text-gray-800">Total a Pagar</h3>
+                <div className="text-2xl font-bold text-blue-700">{formatPrice(totalAmount)}</div>
               </div>
               
-              <div className="payment-actions">
+              <div className="flex flex-col sm:flex-row justify-end gap-3">
                 <button 
-                  className="cancel-btn" 
+                  className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-md font-medium
+                    hover:bg-gray-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   onClick={onClose} 
                   disabled={isProcessing}
                 >
                   Cancelar
                 </button>
                 <button 
-                  className="confirm-btn" 
+                  className="px-5 py-2.5 bg-blue-700 text-white rounded-md font-medium
+                    hover:bg-blue-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   onClick={handleConfirm}
                   disabled={isProcessing}
                 >
@@ -101,9 +110,15 @@ const PaymentModal = ({
               </div>
             </>
           ) : (
-            <div className="empty-orders">
+            <div className="text-center py-5 text-gray-600">
               <p>No hay pedidos en esta mesa.</p>
-              <button className="close-btn-center" onClick={onClose}>Cerrar</button>
+              <button 
+                className="mt-4 px-5 py-2.5 bg-gray-100 text-gray-700 rounded-md font-medium
+                  hover:bg-gray-200 transition-colors mx-auto"
+                onClick={onClose}
+              >
+                Cerrar
+              </button>
             </div>
           )}
         </div>

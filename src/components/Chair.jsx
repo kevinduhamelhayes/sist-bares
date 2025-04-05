@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './styles/chair.css';
 
 /**
  * Componente Chair para representar las sillas alrededor de una mesa
@@ -25,26 +24,39 @@ const Chair = ({ position, state, color, onClick, onAddOrder, orders = [] }) => 
     }
   };
 
+  // Clases de posición para cada lado
+  const positionClasses = {
+    top: 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2',
+    right: 'top-1/2 right-0 translate-x-1/2 -translate-y-1/2',
+    bottom: 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2',
+    left: 'top-1/2 left-0 -translate-x-1/2 -translate-y-1/2'
+  };
+
   return (
     <div 
-      className={`chair chair-${position}`}
+      className={`
+        w-[30px] h-[30px] rounded-full absolute flex items-center justify-center 
+        cursor-pointer transition-all duration-300 z-[2]
+        hover:brightness-90 hover:scale-110
+        ${positionClasses[position]}
+      `}
       style={{ backgroundColor: color }}
       onClick={onClick}
       onContextMenu={handleContextMenu}
     >
       {/* Indicador de pedidos */}
       {hasOrders && (
-        <div className="chair-orders-badge">
+        <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-[15px] h-[15px] rounded-full flex items-center justify-center font-bold">
           {orders.length}
         </div>
       )}
       
       {/* Opcional: mostrar ícono según el estado */}
       {state === 'male' && (
-        <span className="chair-icon">M</span>
+        <span className="text-white font-bold text-xs drop-shadow-sm">M</span>
       )}
       {state === 'female' && (
-        <span className="chair-icon">F</span>
+        <span className="text-white font-bold text-xs drop-shadow-sm">F</span>
       )}
     </div>
   );
