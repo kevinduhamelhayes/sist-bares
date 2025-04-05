@@ -1,166 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { db } from './firebaseConfig';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
-import './styles/salesMetrics.css';
+import React from 'react';
+import { useSalesMetrics } from '../hooks/useSalesMetrics';
+import { useFormatters } from '../hooks/useFormatters';
 
-// Componente para métricas de ventas (diarias y mensuales)
 const SalesMetrics = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [dateRange, setDateRange] = useState('month'); // 'day', 'week', 'month', 'year'
-  const [metrics, setMetrics] = useState({
-    totalSales: 0,
-    averageTicket: 0,
-    totalItems: 0,
-    salesByDay: {},
-    salesByProduct: {},
-    topProducts: [],
-    topDays: []
-  });
-
-  useEffect(() => {
-    loadMetrics(dateRange);
-  }, [dateRange]);
-
-  const loadMetrics = async (range) => {
-    setIsLoading(true);
-
-    try {
-      // Determinar fechas de inicio y fin según rango
-      const endDate = new Date();
-      let startDate = new Date();
-
-      switch (range) {
-        case 'day':
-          startDate.setHours(0, 0, 0, 0);
-          break;
-        case 'week':
-          startDate.setDate(startDate.getDate() - 7);
-          break;
-        case 'month':
-          startDate.setMonth(startDate.getMonth() - 1);
-          break;
-        case 'year':
-          startDate.setFullYear(startDate.getFullYear() - 1);
-          break;
-        default:
-          startDate.setMonth(startDate.getMonth() - 1); // Default a mes
-      }
-
-      // Consultar todos los cierres de caja en el rango
-      const closuresRef = collection(db, "registerClosures");
-      const q = query(
-        closuresRef,
-        where("timestamp", ">=", startDate),
-        where("timestamp", "<=", endDate),
-        orderBy("timestamp", "asc")
-      );
-
-      const querySnapshot = await getDocs(q);
-
-      // Variables para estadísticas
-      let totalSales = 0;
-      let totalClosures = 0;
-      let totalItems = 0;
-      let salesByDay = {};
-      let salesByProduct = {};
-
-      // Procesar datos
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        totalSales += data.total || 0;
-        totalItems += data.itemCount || 0;
-        totalClosures++;
-
-        // Agrupar por día
-        const date = new Date(data.timestamp.seconds * 1000);
-        const dayKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
-        
-        if (!salesByDay[dayKey]) {
-          salesByDay[dayKey] = {
-            total: 0,
-            items: 0,
-            count: 0,
-            label: new Date(dayKey).toLocaleDateString('es-ES', { 
-              day: '2-digit', 
-              month: 'short' 
-            })
-          };
-        }
-        
-        salesByDay[dayKey].total += data.total || 0;
-        salesByDay[dayKey].items += data.itemCount || 0;
-        salesByDay[dayKey].count++;
-
-        // Si hay detalles por producto, procesarlos
-        if (data.details && Array.isArray(data.details)) {
-          data.details.forEach(detail => {
-            // Asumiendo que detail tiene tableNumber y puede tener orderBreakdown
-            // Si en el futuro tenemos desglose por producto, lo procesaríamos aquí
-          });
-        }
-      });
-
-      // Calcular métricas adicionales
-      const averageTicket = totalClosures > 0 ? totalSales / totalClosures : 0;
-      
-      // Preparar datos para gráficos - Top días
-      const topDays = Object.entries(salesByDay)
-        .map(([day, data]) => ({ 
-          day: data.label, 
-          value: data.total,
-          items: data.items
-        }))
-        .sort((a, b) => b.value - a.value)
-        .slice(0, 5);
-
-      // Actualizar estado
-      setMetrics({
-        totalSales,
-        averageTicket,
-        totalItems,
-        salesByDay,
-        salesByProduct,
-        topProducts: [], // No tenemos esta info aún
-        topDays
-      });
-
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error al cargar métricas:", error);
-      setIsLoading(false);
-    }
-  };
-
-  // Helpers para formatear valores
-  const formatCurrency = (value) => `$${value.toFixed(2)}`;
-  const formatNumber = (value) => value.toLocaleString('es-ES');
+  const { isLoading, metrics, dateRange, setDateRange } = useSalesMetrics();
+  const { formatCurrency, formatNumber, formatDateRange } = useFormatters();
 
   return (
-    <div className="sales-metrics-container">
-      <h2>Métricas de Ventas</h2>
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold mb-6">Métricas de Ventas</h2>
       
-      {/* Selector de rango */}
-      <div className="date-range-selector">
+      <div className="flex gap-4 mb-8">
         <button 
-          className={dateRange === 'day' ? 'active' : ''} 
+          className={`px-4 py-2 rounded-md transition-colors ${
+            dateRange === 'day' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+          }`}
           onClick={() => setDateRange('day')}
         >
           Hoy
         </button>
         <button 
-          className={dateRange === 'week' ? 'active' : ''} 
+          className={`px-4 py-2 rounded-md transition-colors ${
+            dateRange === 'week' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+          }`}
           onClick={() => setDateRange('week')}
         >
           Semana
         </button>
         <button 
-          className={dateRange === 'month' ? 'active' : ''} 
+          className={`px-4 py-2 rounded-md transition-colors ${
+            dateRange === 'month' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+          }`}
           onClick={() => setDateRange('month')}
         >
           Mes
         </button>
         <button 
-          className={dateRange === 'year' ? 'active' : ''} 
+          className={`px-4 py-2 rounded-md transition-colors ${
+            dateRange === 'year' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+          }`}
           onClick={() => setDateRange('year')}
         >
           Año
@@ -168,57 +54,86 @@ const SalesMetrics = () => {
       </div>
       
       {isLoading ? (
-        <div className="loading-metrics">Cargando métricas...</div>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
       ) : (
-        <div className="metrics-content">
-          {/* Tarjetas de KPIs */}
-          <div className="metrics-cards">
-            <div className="metric-card">
-              <h3>Ventas Totales</h3>
-              <div className="metric-value">{formatCurrency(metrics.totalSales)}</div>
-              <div className="metric-label">
-                {dateRange === 'day' ? 'hoy' :
-                 dateRange === 'week' ? 'esta semana' :
-                 dateRange === 'month' ? 'este mes' : 'este año'}
-              </div>
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg text-gray-600 mb-2">Ventas Totales</h3>
+              <div className="text-3xl font-bold mb-1">{formatCurrency(metrics.totalSales)}</div>
+              <div className="text-sm text-gray-500">{formatDateRange(dateRange)}</div>
             </div>
             
-            <div className="metric-card">
-              <h3>Ticket Promedio</h3>
-              <div className="metric-value">{formatCurrency(metrics.averageTicket)}</div>
-              <div className="metric-label">por cierre de caja</div>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg text-gray-600 mb-2">Ticket Promedio</h3>
+              <div className="text-3xl font-bold mb-1">{formatCurrency(metrics.averageTicket)}</div>
+              <div className="text-sm text-gray-500">por venta completada</div>
             </div>
             
-            <div className="metric-card">
-              <h3>Productos Vendidos</h3>
-              <div className="metric-value">{formatNumber(metrics.totalItems)}</div>
-              <div className="metric-label">unidades totales</div>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg text-gray-600 mb-2">Productos Vendidos</h3>
+              <div className="text-3xl font-bold mb-1">{formatNumber(metrics.totalItems)}</div>
+              <div className="text-sm text-gray-500">unidades totales</div>
             </div>
           </div>
           
-          {/* Gráfica de días (sería una visualización simple) */}
           {metrics.topDays.length > 0 && (
-            <div className="days-chart-section">
-              <h3>Ventas por Día</h3>
-              <div className="days-chart">
-                {metrics.topDays.map((day, index) => (
-                  <div key={index} className="chart-bar-container">
-                    <div 
-                      className="chart-bar" 
-                      style={{ 
-                        height: `${(day.value / Math.max(...metrics.topDays.map(d => d.value))) * 100}%` 
-                      }}
-                    >
-                      <div className="chart-value">{formatCurrency(day.value)}</div>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold mb-6">Ventas por Día</h3>
+              <div className="flex justify-between items-end h-64 gap-4">
+                {metrics.topDays.map((day, index) => {
+                  const maxValue = Math.max(...metrics.topDays.map(d => d.value));
+                  const height = `${(day.value / maxValue) * 100}%`;
+                  
+                  return (
+                    <div key={index} className="flex-1 flex flex-col items-center">
+                      <div className="relative w-full">
+                        <div className="absolute bottom-0 left-0 right-0 bg-blue-500 rounded-t-md transition-all duration-500"
+                             style={{ height }}>
+                          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-sm font-medium">
+                            {formatCurrency(day.value)}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-2 text-sm font-medium">{day.day}</div>
                     </div>
-                    <div className="chart-label">{day.day}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
           
-          {/* Aquí se podría añadir más visualizaciones */}
+          {metrics.topProducts.length > 0 && (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold mb-6">Top 10 Productos Vendidos</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="px-4 py-2 text-left">Producto</th>
+                      <th className="px-4 py-2 text-right">Cantidad</th>
+                      <th className="px-4 py-2 text-right">Total</th>
+                      <th className="px-4 py-2 text-right">Promedio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {metrics.topProducts.map((product) => (
+                      <tr key={product.id} className="border-b">
+                        <td className="px-4 py-2">{product.name}</td>
+                        <td className="px-4 py-2 text-right">{formatNumber(product.quantity)}</td>
+                        <td className="px-4 py-2 text-right">{formatCurrency(product.totalValue)}</td>
+                        <td className="px-4 py-2 text-right">
+                          {formatCurrency(product.totalValue / product.quantity)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

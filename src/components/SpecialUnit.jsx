@@ -1,9 +1,10 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useTableLogic } from '../hooks/useTableLogic'; // Importar el hook
 import { MenuContext } from '../context/MenuContext'; // Importar el contexto del menú
 import { TableContext } from '../context/TableContext'; // Para el botón de eliminar
 import './styles/unit.css'; // Reutilizar estilos si es posible
+import PaymentModal from './PaymentModal'; // Importar el nuevo componente
 
 const SpecialUnit = ({ table }) => {
   const { number: tableNumber, chairCount } = table;
@@ -15,18 +16,38 @@ const SpecialUnit = ({ table }) => {
     stateColors,
     showOrderModal,
     currentChairIndex,
-    handleTableClick, // Podríamos no usarlo para mesas especiales
+    handleTableClick: originalHandleTableClick, // Renombrar para extender funcionalidad
     handleChairClick,
     handleAddOrderToChair,
     handleAddOrder,
     handleCloseModal,
     getTotalAmount,
     getOrdersByChair,
+    clearTableData // Usar la nueva función
   } = useTableLogic(tableNumber, chairCount);
 
   // Consumir contextos
   const { menuItems, isLoadingMenu } = useContext(MenuContext);
   const { removeTable } = useContext(TableContext);
+
+  const [showPaymentModal, setShowPaymentModal] = useState(false); // Estado para el modal de pago
+
+  // Extender handleTableClick para mostrar modal de pago cuando sea necesario
+  const handleTableClick = () => {
+    // Si la mesa está activa (tiene color diferente al default) y todas las sillas están vacías
+    if (tableColor !== "#ddd" && chairStates.every(state => state === 'empty')) {
+      // Si hay órdenes, mostrar modal de pago
+      if (orders.length > 0) {
+        setShowPaymentModal(true);
+      } else {
+        // Si no hay órdenes, proceder con comportamiento original
+        originalHandleTableClick();
+      }
+    } else {
+      // En otros casos, comportamiento original
+      originalHandleTableClick();
+    }
+  };
 
   const handleRemoveClick = () => {
     // Añadir confirmación antes de borrar
@@ -38,6 +59,17 @@ const SpecialUnit = ({ table }) => {
       }
       removeTable(tableNumber);
     }
+  };
+
+  // Cerrar el modal de pago
+  const handleClosePaymentModal = () => {
+    setShowPaymentModal(false);
+  };
+
+  // Función para confirmar el pago
+  const handleConfirmPayment = async (tableId, tableNumber) => {
+    const docId = `table-${tableNumber}`;
+    await clearTableData(docId, tableNumber);
   };
 
   // Mensaje de carga
@@ -123,6 +155,17 @@ const SpecialUnit = ({ table }) => {
           </div>
         </div>
       )}
+
+      {/* Nuevo Modal de Pago */}
+      <PaymentModal
+        show={showPaymentModal}
+        onClose={handleClosePaymentModal}
+        tableNumber={tableNumber}
+        tableId={`table-${tableNumber}`}
+        orders={orders}
+        totalAmount={parseFloat(getTotalAmount())}
+        onConfirm={handleConfirmPayment}
+      />
     </div>
   );
 };

@@ -1,0 +1,86 @@
+.chair {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+/* Posiciones de las sillas alrededor de la mesa */
+.chair-top {
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.chair-right {
+  top: 50%;
+  right: -15px;
+  transform: translateY(-50%);
+}
+
+.chair-bottom {
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.chair-left {
+  top: 50%;
+  left: -15px;
+  transform: translateY(-50%);
+}
+
+/* Efecto hover */
+.chair:hover {
+  filter: brightness(90%);
+  transform-origin: center;
+  transform: scale(1.1);
+}
+
+/* Ajustar transform para las sillas en las esquinas cuando hacen hover */
+.chair-top:hover {
+  transform: translateX(-50%) scale(1.1);
+}
+
+.chair-bottom:hover {
+  transform: translateX(-50%) scale(1.1);
+}
+
+.chair-left:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.chair-right:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Indicador de pedidos */
+.chair-orders-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  font-size: 10px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Iconos de estado (M/F) */
+.chair-icon {
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+} 

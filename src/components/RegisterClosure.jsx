@@ -1,265 +1,203 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
+import { doc, setDoc, collection } from 'firebase/firestore';
 import { db } from './firebaseConfig';
-import { collection, getDocs, doc, setDoc, query, where, orderBy, limit } from 'firebase/firestore';
-import { MenuContext } from '../context/MenuContext'; 
+import { MenuContext } from '../context/MenuContext';
+import { AuthContext } from '../context/AuthContext';
+import { useClosureHistory } from '../hooks/useClosureHistory';
+import { usePeriodCalculation } from '../hooks/usePeriodCalculation';
 import './styles/registerClosure.css';
 
 const RegisterClosure = () => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [currentSales, setCurrentSales] = useState({
-    total: 0,
-    itemCount: 0,
-    tableCount: 0,
-    details: [] // Detalles por mesa o por producto
-  });
-  const [closureHistory, setClosureHistory] = useState([]);
-  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
+  const [dateRange, setDateRange] = useState('day');
   const { menuItems } = useContext(MenuContext);
+  const { currentUser } = useContext(AuthContext);
+  const { closureHistory, isHistoryLoading, refreshHistory } = useClosureHistory();
+  const { isProcessing, periodSummary, calculatePeriodSummary, resetPeriodSummary } = usePeriodCalculation();
 
-  // Cargar historial de cierres
-  useEffect(() => {
-    const loadClosureHistory = async () => {
-      try {
-        setIsHistoryLoading(true);
-        const closuresRef = collection(db, "registerClosures");
-        const q = query(closuresRef, orderBy("timestamp", "desc"), limit(10));
-        const querySnapshot = await getDocs(q);
-        
-        const history = [];
-        querySnapshot.forEach(doc => {
-          history.push({
-            id: doc.id,
-            ...doc.data()
-          });
-        });
-        
-        setClosureHistory(history);
-        setIsHistoryLoading(false);
-      } catch (error) {
-        console.error("Error al cargar historial de cierres:", error);
-        setIsHistoryLoading(false);
-      }
-    };
-    
-    loadClosureHistory();
-  }, []);
-
-  // Calcular ventas actuales desde tableStates
-  const calculateCurrentSales = async () => {
-    setIsProcessing(true);
-    
-    try {
-      const tableStatesRef = collection(db, "tableStates");
-      const querySnapshot = await getDocs(tableStatesRef);
-      
-      let total = 0;
-      let itemCount = 0;
-      let tablesWithOrders = 0;
-      let details = [];
-      
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        if (data.orders && Array.isArray(data.orders) && data.orders.length > 0) {
-          tablesWithOrders++;
-          
-          let tableTotal = 0;
-          data.orders.forEach(order => {
-            const price = order.item?.price || 0;
-            tableTotal += price;
-            itemCount++;
-          });
-          
-          total += tableTotal;
-          details.push({
-            tableNumber: data.tableNumber,
-            total: tableTotal,
-            orderCount: data.orders.length
-          });
-        }
-      });
-      
-      setCurrentSales({
-        total,
-        itemCount,
-        tableCount: tablesWithOrders,
-        details
-      });
-      
-      setIsProcessing(false);
-    } catch (error) {
-      console.error("Error al calcular ventas actuales:", error);
-      setIsProcessing(false);
-    }
-  };
-
-  // Ejecutar cierre de cajas
-  const executeRegisterClosure = async () => {
-    if (isProcessing) return;
-    
-    if (!confirm('¿Estás seguro de que deseas hacer el cierre de caja? Esto limpiará todas las mesas actuales.')) {
+  const executePeriodClosure = async () => {
+    if (isProcessing || !currentUser || periodSummary.saleCount === 0) {
+      if (!currentUser) alert("Error: Usuario no identificado.");
+      if (periodSummary.saleCount === 0) alert("No hay ventas para cerrar en este período.");
       return;
     }
     
-    setIsProcessing(true);
+    if (!confirm(`¿Estás seguro de que deseas hacer el cierre de ${dateRange === 'day' ? 'día' : dateRange === 'week' ? 'semana' : 'mes'}? Esto marcará el corte para este período.`)) {
+      return;
+    }
     
     try {
-      // 1. Guardar un nuevo documento en la colección registerClosures
       const timestamp = new Date();
-      const closureRef = doc(collection(db, "registerClosures"));
+      const closureRef = doc(collection(db, "periodClosures"));
       
       await setDoc(closureRef, {
         timestamp,
-        total: currentSales.total,
-        itemCount: currentSales.itemCount,
-        tableCount: currentSales.tableCount,
-        details: currentSales.details,
-        closedBy: "usuario_actual" // Idealmente obtener del contexto de autenticación
+        period: dateRange,
+        startDate: periodSummary.startDate,
+        endDate: periodSummary.endDate,
+        total: periodSummary.total,
+        itemCount: periodSummary.itemCount,
+        saleCount: periodSummary.saleCount,
+        productDetails: periodSummary.details,
+        closedBy: currentUser.uid
       });
       
-      // 2. Limpiar todas las mesas (eliminar pedidos)
-      const tableStatesRef = collection(db, "tableStates");
-      const querySnapshot = await getDocs(tableStatesRef);
-      
-      const promises = [];
-      
-      querySnapshot.forEach(document => {
-        const data = document.data();
-        
-        // Solo limpiar mesas que tengan pedidos
-        if (data.orders && data.orders.length > 0) {
-          const tableRef = doc(db, "tableStates", document.id);
-          
-          // Mantener chairStates pero limpiar orders
-          promises.push(setDoc(tableRef, {
-            ...data,
-            orders: []
-          }, { merge: true }));
-        }
-      });
-      
-      await Promise.all(promises);
-      
-      // 3. Actualizar estado local
-      setCurrentSales({
-        total: 0,
-        itemCount: 0,
-        tableCount: 0,
-        details: []
-      });
-      
-      // 4. Recargar historial
-      const refreshQuery = query(
-        collection(db, "registerClosures"), 
-        orderBy("timestamp", "desc"), 
-        limit(10)
-      );
-      
-      const refreshSnapshot = await getDocs(refreshQuery);
-      const newHistory = [];
-      
-      refreshSnapshot.forEach(doc => {
-        newHistory.push({
-          id: doc.id,
-          ...doc.data()
-        });
-      });
-      
-      setClosureHistory(newHistory);
-      setIsProcessing(false);
-      
-      alert('Cierre de caja completado con éxito.');
+      await refreshHistory();
+      resetPeriodSummary();
+      alert('Cierre de período completado con éxito.');
     } catch (error) {
-      console.error("Error durante el cierre de caja:", error);
-      setIsProcessing(false);
-      alert('Error al realizar el cierre de caja. Por favor, inténtalo de nuevo.');
+      console.error("Error durante el cierre de período:", error);
+      alert('Error al realizar el cierre. Por favor, inténtalo de nuevo.');
     }
   };
 
+  const formatPeriod = (period) => {
+    switch (period) {
+      case 'day': return 'Día';
+      case 'week': return 'Semana';
+      case 'month': return 'Mes';
+      default: return period;
+    }
+  };
+
+  const formatDate = (timestamp) => {
+    if (!timestamp || !timestamp.seconds) return 'N/A';
+    return new Date(timestamp.seconds * 1000).toLocaleDateString();
+  };
+
   return (
-    <div className="register-closure-container">
-      <h2>Cierre de Caja</h2>
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold mb-6">Cierre de Período</h2>
       
-      <div className="current-sales-section">
-        <h3>Ventas Actuales en Sistema</h3>
-        <button 
-          className="calculate-button"
-          onClick={calculateCurrentSales}
-          disabled={isProcessing}
-        >
-          Calcular Ventas Actuales
-        </button>
-        
-        {currentSales.total > 0 && (
-          <div className="sales-summary">
-            <div className="sales-total">Total: ${currentSales.total.toFixed(2)}</div>
-            <div className="sales-details">
-              <div>Productos vendidos: {currentSales.itemCount}</div>
-              <div>Mesas con pedidos: {currentSales.tableCount}</div>
-            </div>
-            
-            {currentSales.details.length > 0 && (
-              <div className="table-details">
-                <h4>Detalle por Mesa</h4>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Mesa</th>
-                      <th>Total</th>
-                      <th>Pedidos</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentSales.details.map(detail => (
-                      <tr key={`table-${detail.tableNumber}`}>
-                        <td>#{detail.tableNumber}</td>
-                        <td>${detail.total.toFixed(2)}</td>
-                        <td>{detail.orderCount}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            
-            <button 
-              className="execute-closure-button"
-              onClick={executeRegisterClosure}
-              disabled={isProcessing}
-            >
-              {isProcessing ? 'Procesando...' : 'Ejecutar Cierre de Caja'}
-            </button>
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 className="text-xl font-semibold mb-4">Seleccionar Período</h3>
+        <div className="flex gap-4 mb-6">
+          <button 
+            className={`px-4 py-2 rounded-md transition-colors ${
+              dateRange === 'day' 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
+            onClick={() => {
+              setDateRange('day');
+              calculatePeriodSummary('day');
+            }}
+          >
+            Hoy
+          </button>
+          <button 
+            className={`px-4 py-2 rounded-md transition-colors ${
+              dateRange === 'week' 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
+            onClick={() => {
+              setDateRange('week');
+              calculatePeriodSummary('week');
+            }}
+          >
+            Semana
+          </button>
+          <button 
+            className={`px-4 py-2 rounded-md transition-colors ${
+              dateRange === 'month' 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
+            onClick={() => {
+              setDateRange('month');
+              calculatePeriodSummary('month');
+            }}
+          >
+            Mes
+          </button>
+        </div>
+
+        {isProcessing ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-sm text-gray-600 mb-1">Total Ventas</h4>
+                <p className="text-2xl font-bold">${periodSummary.total.toFixed(2)}</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-sm text-gray-600 mb-1">Items Vendidos</h4>
+                <p className="text-2xl font-bold">{periodSummary.itemCount}</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-sm text-gray-600 mb-1">Número de Ventas</h4>
+                <p className="text-2xl font-bold">{periodSummary.saleCount}</p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-4 py-2 text-left">Producto</th>
+                    <th className="px-4 py-2 text-right">Cantidad</th>
+                    <th className="px-4 py-2 text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {periodSummary.details.map((item) => (
+                    <tr key={item.id} className="border-b">
+                      <td className="px-4 py-2">{item.name}</td>
+                      <td className="px-4 py-2 text-right">{item.quantity}</td>
+                      <td className="px-4 py-2 text-right">${item.totalValue.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6">
+              <button
+                className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={executePeriodClosure}
+                disabled={isProcessing || periodSummary.saleCount === 0}
+              >
+                Ejecutar Cierre
+              </button>
+            </div>
+          </>
         )}
       </div>
-      
-      <div className="closure-history-section">
-        <h3>Historial de Cierres</h3>
-        
+
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-xl font-semibold mb-4">Historial de Cierres</h3>
         {isHistoryLoading ? (
-          <div className="loading">Cargando historial...</div>
-        ) : closureHistory.length > 0 ? (
-          <table className="history-table">
-            <thead>
-              <tr>
-                <th>Fecha y Hora</th>
-                <th>Total</th>
-                <th>Productos</th>
-                <th>Mesas</th>
-              </tr>
-            </thead>
-            <tbody>
-              {closureHistory.map(closure => (
-                <tr key={closure.id}>
-                  <td>{new Date(closure.timestamp.seconds * 1000).toLocaleString()}</td>
-                  <td>${closure.total.toFixed(2)}</td>
-                  <td>{closure.itemCount}</td>
-                  <td>{closure.tableCount}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
         ) : (
-          <div className="no-history">No hay cierres registrados.</div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="px-4 py-2 text-left">Fecha</th>
+                  <th className="px-4 py-2 text-left">Período</th>
+                  <th className="px-4 py-2 text-right">Total</th>
+                  <th className="px-4 py-2 text-right">Items</th>
+                  <th className="px-4 py-2 text-right">Ventas</th>
+                </tr>
+              </thead>
+              <tbody>
+                {closureHistory.map((closure) => (
+                  <tr key={closure.id} className="border-b">
+                    <td className="px-4 py-2">{formatDate(closure.timestamp)}</td>
+                    <td className="px-4 py-2">{formatPeriod(closure.period)}</td>
+                    <td className="px-4 py-2 text-right">${closure.total.toFixed(2)}</td>
+                    <td className="px-4 py-2 text-right">{closure.itemCount}</td>
+                    <td className="px-4 py-2 text-right">{closure.saleCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

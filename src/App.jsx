@@ -16,7 +16,6 @@ import { TableProvider } from "./context/TableContext"
 import { OrderProvider } from "./context/OrderContext"
 import { MenuProvider } from "./context/MenuContext"
 import ReportsPage from "./pages/ReportsPage"
-import './App.css'
 import './index.css'
 
 function App() {

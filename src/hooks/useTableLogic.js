@@ -1,9 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { db } from '../components/firebaseConfig';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { 
+  doc, 
+  collection, 
+  onSnapshot, 
+  updateDoc, 
+  setDoc, 
+  getDoc,
+  addDoc,
+  Timestamp
+} from 'firebase/firestore';
+import { AuthContext } from '../context/AuthContext';
 
 // Hook reutilizable para la lógica de una mesa (estándar o especial)
 export const useTableLogic = (tableNumber, chairCount) => {
+  const { currentUser } = useContext(AuthContext);
   const docId = `table-${tableNumber}`;
   const tableStateRef = doc(db, "tableStates", docId);
 
@@ -156,6 +167,86 @@ export const useTableLogic = (tableNumber, chairCount) => {
     return orders.filter(order => order.chairIndex === chairIndex);
   };
 
+  const clearTableData = useCallback(async (tableId, tableNumber) => {
+    if (!currentUser) {
+      console.error("Usuario no autenticado. No se puede completar la venta.");
+      alert("Error: Debes iniciar sesión para registrar la venta.");
+      return;
+    }
+
+    const tableRef = doc(db, "tableStates", tableId);
+
+    try {
+      // --- PASO 1: Guardar Venta Completada ---
+      const tableSnap = await getDoc(tableRef);
+      if (!tableSnap.exists()) {
+        console.error(`Error: No se encontró la mesa con ID ${tableId}`);
+        return;
+      }
+
+      const tableData = tableSnap.data();
+      const orders = tableData.orders || [];
+
+      if (orders.length > 0) {
+        let totalAmount = 0;
+        const items = [];
+        
+        orders.forEach(order => {
+          const price = order?.item?.price;
+          const name = order?.item?.name;
+          const itemId = order?.item?.id || name;
+
+          if (itemId && name && typeof price === 'number' && price > 0) {
+            totalAmount += price;
+            items.push({
+              id: itemId,
+              name: name,
+              price: price,
+            });
+          } else {
+             console.warn("Pedido inválido encontrado al cerrar mesa:", order);
+          }
+        });
+
+        if (totalAmount > 0) {
+           const saleData = {
+             timestamp: Timestamp.now(),
+             tableId: tableId,
+             tableNumber: tableNumber || tableData.tableNumber || 'N/A',
+             totalAmount: totalAmount,
+             items: items,
+             processedBy: currentUser.uid
+           };
+
+           try {
+             const salesCollectionRef = collection(db, "completedSales");
+             await addDoc(salesCollectionRef, saleData);
+             console.log(`Venta de mesa ${tableNumber || tableId} guardada con éxito.`);
+           } catch (saleError) {
+             console.error("Error al guardar la venta completada:", saleError);
+             alert("Error crítico al guardar la venta. No se limpiará la mesa.");
+             return;
+           }
+        } else {
+           console.log(`Mesa ${tableNumber || tableId} sin importe total, no se guarda venta.`);
+        }
+
+      } else {
+         console.log(`Mesa ${tableNumber || tableId} sin pedidos, no se guarda venta.`);
+      }
+
+      // --- PASO 2: Limpieza de la mesa (Lógica existente asumida) ---
+      await updateDoc(tableRef, {
+        orders: [],
+      }); 
+      console.log(`Datos de la mesa ${tableNumber || tableId} limpiados.`);
+
+    } catch (error) {
+      console.error(`Error al procesar/limpiar la mesa ${tableId}:`, error);
+      alert(`Error al procesar la mesa ${tableNumber || tableId}.`);
+    }
+  }, [currentUser]);
+
   // Devolver estados y funciones necesarios para los componentes
   return {
     isLoadingState,
@@ -172,5 +263,6 @@ export const useTableLogic = (tableNumber, chairCount) => {
     handleCloseModal,
     getTotalAmount,
     getOrdersByChair,
+    clearTableData
   };
 }; 
