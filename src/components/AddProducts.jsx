@@ -1,4 +1,4 @@
-import "./styles/addproducts.css"
+// import "./styles/addproducts.css"
 const AddProducts = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">

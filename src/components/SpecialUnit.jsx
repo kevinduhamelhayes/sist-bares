@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useTableLogic } from '../hooks/useTableLogic'; // Importar el hook
 import { MenuContext } from '../context/MenuContext'; // Importar el contexto del menú
 import { TableContext } from '../context/TableContext'; // Para el botón de eliminar
-import './styles/unit.css'; // Reutilizar estilos si es posible
 import PaymentModal from './PaymentModal'; // Importar el nuevo componente
 
 const SpecialUnit = ({ table }) => {

@@ -5,7 +5,6 @@ import { MenuContext } from '../context/MenuContext';
 import { AuthContext } from '../context/AuthContext';
 import { useClosureHistory } from '../hooks/useClosureHistory';
 import { usePeriodCalculation } from '../hooks/usePeriodCalculation';
-import './styles/registerClosure.css';
 
 const RegisterClosure = () => {
   const [dateRange, setDateRange] = useState('day');
@@ -121,15 +120,15 @@ const RegisterClosure = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h4 className="text-sm text-gray-600 mb-1">Total Ventas</h4>
-                <p className="text-2xl font-bold">${periodSummary.total.toFixed(2)}</p>
+                <p className="text-2xl font-bold">${periodSummary.total?.toFixed(2) ?? '0.00'}</p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h4 className="text-sm text-gray-600 mb-1">Items Vendidos</h4>
-                <p className="text-2xl font-bold">{periodSummary.itemCount}</p>
+                <p className="text-2xl font-bold">{periodSummary.itemCount ?? 0}</p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h4 className="text-sm text-gray-600 mb-1">Número de Ventas</h4>
-                <p className="text-2xl font-bold">{periodSummary.saleCount}</p>
+                <p className="text-2xl font-bold">{periodSummary.saleCount ?? 0}</p>
               </div>
             </div>
 
@@ -143,11 +142,11 @@ const RegisterClosure = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {periodSummary.details.map((item) => (
+                  {(periodSummary.details ?? []).map((item) => (
                     <tr key={item.id} className="border-b">
                       <td className="px-4 py-2">{item.name}</td>
                       <td className="px-4 py-2 text-right">{item.quantity}</td>
-                      <td className="px-4 py-2 text-right">${item.totalValue.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-right">${item.totalValue?.toFixed(2) ?? '0.00'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -158,7 +157,7 @@ const RegisterClosure = () => {
               <button
                 className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={executePeriodClosure}
-                disabled={isProcessing || periodSummary.saleCount === 0}
+                disabled={isProcessing || (periodSummary.saleCount ?? 0) === 0}
               >
                 Ejecutar Cierre
               </button>
@@ -190,9 +189,9 @@ const RegisterClosure = () => {
                   <tr key={closure.id} className="border-b">
                     <td className="px-4 py-2">{formatDate(closure.timestamp)}</td>
                     <td className="px-4 py-2">{formatPeriod(closure.period)}</td>
-                    <td className="px-4 py-2 text-right">${closure.total.toFixed(2)}</td>
-                    <td className="px-4 py-2 text-right">{closure.itemCount}</td>
-                    <td className="px-4 py-2 text-right">{closure.saleCount}</td>
+                    <td className="px-4 py-2 text-right">${closure.total?.toFixed(2) ?? '0.00'}</td>
+                    <td className="px-4 py-2 text-right">{closure.itemCount ?? 0}</td>
+                    <td className="px-4 py-2 text-right">{closure.saleCount ?? 0}</td>
                   </tr>
                 ))}
               </tbody>
@@ -204,4 +203,4 @@ const RegisterClosure = () => {
   );
 };
 
-export default RegisterClosure; 
+export default RegisterClosure;
